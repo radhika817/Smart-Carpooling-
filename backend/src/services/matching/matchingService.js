@@ -17,9 +17,34 @@
 const EARTH_RADIUS_KM = 6371;
 
 /**
+ * Normalizes input coordinates into standard GeoJSON [longitude, latitude]
+ */
+export const normalizeLngLat = (coord) => {
+  if (!coord) return null;
+  if (Array.isArray(coord)) {
+    if (coord.length < 2) return null;
+    // Auto-detect [lat, lng] reversal for South Asia / India (lat ~8..38, lng ~68..98)
+    if (coord[0] < 40 && coord[1] > 40) {
+      return [coord[1], coord[0]];
+    }
+    return [Number(coord[0]), Number(coord[1])];
+  }
+  if (typeof coord === 'object') {
+    const lng = coord.lng ?? coord.lon ?? coord.longitude ?? coord.coordinates?.[0];
+    const lat = coord.lat ?? coord.latitude ?? coord.coordinates?.[1];
+    if (lng !== undefined && lat !== undefined) {
+      return [Number(lng), Number(lat)];
+    }
+  }
+  return null;
+};
+
+/**
  * Pure Haversine distance in kilometers
  */
-export const haversineDistanceKm = (coord1, coord2) => {
+export const haversineDistanceKm = (c1, c2) => {
+  const coord1 = normalizeLngLat(c1);
+  const coord2 = normalizeLngLat(c2);
   if (!coord1 || !coord2) return 999;
   const [lon1, lat1] = coord1;
   const [lon2, lat2] = coord2;
@@ -41,7 +66,10 @@ export const haversineDistanceKm = (coord1, coord2) => {
 /**
  * Compute compass bearing between two points in degrees (0 - 360)
  */
-export const calculateBearing = (coord1, coord2) => {
+export const calculateBearing = (c1, c2) => {
+  const coord1 = normalizeLngLat(c1);
+  const coord2 = normalizeLngLat(c2);
+  if (!coord1 || !coord2) return 0;
   const [lon1, lat1] = coord1.map((deg) => (deg * Math.PI) / 180);
   const [lon2, lat2] = coord2.map((deg) => (deg * Math.PI) / 180);
 
@@ -161,9 +189,13 @@ export const scoreRide = (ride, searchCriteria = {}) => {
   // Human-readable summary and structured breakdown
   const summaryParts = [];
   if (routeOverlapPct) summaryParts.push(`${routeOverlapPct}% route overlap`);
-  if (timeDiffMins !== undefined && searchCriteria.departureTime) summaryParts.push(`${timeDiffMins} min time difference`);
-  if (pickupDistKm) summaryParts.push(`pickup ${pickupDistKm} km away`);
-  if (destDistKm) summaryParts.push(`destination ${destDistKm} km away`);
+  if (timeDiffMins !== undefined && searchCriteria.departureTime) summaryParts.push(`${timeDiffMins} min time diff`);
+  if (pickupDistKm !== undefined && passengerPickup) summaryParts.push(`${pickupDistKm}km pickup distance`);
+  if (destDistKm !== undefined && passengerDest) summaryParts.push(`${destDistKm}km dest distance`);
+
+  const summaryText = summaryParts.length > 0
+    ? `${matchPercentage}% match — ${summaryParts.join(', ')}`
+    : `${matchPercentage}% match — Direct corridor route`;
 
   return {
     score: totalScore,
@@ -179,22 +211,22 @@ export const scoreRide = (ride, searchCriteria = {}) => {
         weight: 25,
         points: timePoints,
         diffMinutes: timeDiffMins,
-        label: timeDiffMins === 0 ? 'Same departure time' : `${timeDiffMins} min departure difference`,
+        label: timeDiffMins === 0 ? 'Same departure time' : `${timeDiffMins} min time diff`,
       },
       pickupProximity: {
         weight: 20,
         points: pickupPoints,
         distanceKm: pickupDistKm,
-        label: `Pickup ${pickupDistKm} km away`,
+        label: `${pickupDistKm}km pickup distance`,
       },
       destinationProximity: {
         weight: 15,
         points: destPoints,
         distanceKm: destDistKm,
-        label: `Destination ${destDistKm} km away`,
+        label: `${destDistKm}km dest distance`,
       },
     },
-    summary: summaryParts.join(' • ') || `${matchPercentage}% route alignment`,
+    summary: summaryText,
   };
 };
 
@@ -208,9 +240,15 @@ export const suggestPickupPoint = (passengerPickups = [], rideRoute = []) => {
   if (!passengerPickups || passengerPickups.length === 0) return null;
 
   // 1. Calculate centroid (arithmetic mean of latitudes & longitudes)
-  const count = passengerPickups.length;
-  const sumLng = passengerPickups.reduce((acc, p) => acc + (p.coordinates?.[0] || p[0]), 0);
-  const sumLat = passengerPickups.reduce((acc, p) => acc + (p.coordinates?.[1] || p[1]), 0);
+  const normalizedPickups = passengerPickups
+    .map((p) => normalizeLngLat(p.coordinates || p))
+    .filter(Boolean);
+
+  if (normalizedPickups.length === 0) return null;
+
+  const count = normalizedPickups.length;
+  const sumLng = normalizedPickups.reduce((acc, p) => acc + p[0], 0);
+  const sumLat = normalizedPickups.reduce((acc, p) => acc + p[1], 0);
 
   const centroid = [
     Math.round((sumLng / count) * 10000) / 10000,
@@ -222,7 +260,8 @@ export const suggestPickupPoint = (passengerPickups = [], rideRoute = []) => {
   if (rideRoute && rideRoute.length > 0) {
     let minDistance = Infinity;
     for (const pt of rideRoute) {
-      const routePt = [pt[1] || pt[0], pt[0] || pt[1]]; // ensure [lng, lat]
+      const routePt = normalizeLngLat(pt.coordinates || pt);
+      if (!routePt) continue;
       const dist = haversineDistanceKm(centroid, routePt);
       if (dist < minDistance) {
         minDistance = dist;
@@ -232,11 +271,11 @@ export const suggestPickupPoint = (passengerPickups = [], rideRoute = []) => {
   }
 
   // 3. Compute passenger walking distances to the suggested cluster point
-  const passengerDistances = passengerPickups.map((p, idx) => {
-    const coords = p.coordinates || p;
+  const passengerDistances = normalizedPickups.map((coords, idx) => {
     const walkDistKm = haversineDistanceKm(coords, suggestedCoords);
     return {
       passengerIndex: idx,
+      pickupCoordinates: coords,
       walkingDistanceKm: walkDistKm,
       walkingTimeMinutes: Math.round(walkDistKm * 12), // Average 12 mins per km walking
     };
@@ -252,6 +291,6 @@ export const suggestPickupPoint = (passengerPickups = [], rideRoute = []) => {
     passengerCount: count,
     averageWalkingKm: avgWalkKm,
     passengerDistances,
-    reasoning: `Cluster point minimizes detour for driver while keeping passenger average walk to ${avgWalkKm} km.`,
+    reasoning: `Cluster point on driver corridor keeps passenger average walking distance to ${avgWalkKm} km.`,
   };
 };

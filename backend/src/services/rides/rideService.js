@@ -116,10 +116,24 @@ export const listRides = async (query = {}) => {
     .sort({ date: 1, departureTime: 1 });
 };
 
+import { scoreRide, suggestPickupPoint } from '../matching/matchingService.js';
+
 /**
- * Plain ride search endpoint for Phase 2
+ * Two-step ride search (system.md §3.4)
+ * Step 1: MongoDB 2dsphere geo filter narrows candidate rides within proximity radius
+ * Step 2: Pure function scoreRide() scores candidates (Route 40%, Time 25%, Pickup 20%, Dest 15%)
+ *         and ranks them descending by match score.
  */
-export const searchRides = async ({ pickup, destination, date, seats }) => {
+export const searchRides = async ({
+  pickup,
+  destination,
+  pickupCoords,
+  destCoords,
+  date,
+  departureTime,
+  seats,
+  radiusKm = 15,
+}) => {
   const filter = {
     status: { $in: ['OPEN', 'BOOKING'] },
     availableSeats: { $gte: seats ? parseInt(seats, 10) : 1 },
@@ -129,23 +143,61 @@ export const searchRides = async ({ pickup, destination, date, seats }) => {
     filter.date = date;
   }
 
+  // Step 1: MongoDB 2dsphere Geospatial Filtering
+  // If passenger provides pickup coordinates, filter using MongoDB $centerSphere index
+  if (pickupCoords && Array.isArray(pickupCoords) && pickupCoords.length === 2) {
+    const radiusInRadians = (Number(radiusKm) || 15) / 6371;
+    filter['startLocation.coordinates'] = {
+      $geoWithin: {
+        $centerSphere: [pickupCoords, radiusInRadians],
+      },
+    };
+  }
+
+  // Fetch narrowed candidates from MongoDB with populated driver & vehicle
   let rides = await Ride.find(filter)
     .populate([
       { path: 'driver', select: 'name email phone profileImage organization rating verificationStatus' },
       { path: 'vehicle', select: 'model registrationNumber type seats image' },
     ])
-    .sort({ date: 1, departureTime: 1 });
+    .lean();
 
-  if (pickup) {
+  // If text query provided without coordinates, apply fallback text filter
+  if (pickup && (!pickupCoords || pickupCoords.length !== 2)) {
     const p = pickup.toLowerCase();
     rides = rides.filter((r) => r.startLocation?.address?.toLowerCase().includes(p));
   }
-  if (destination) {
+  if (destination && (!destCoords || destCoords.length !== 2)) {
     const d = destination.toLowerCase();
     rides = rides.filter((r) => r.destination?.address?.toLowerCase().includes(d));
   }
 
-  return rides;
+  // Step 2: Pure Function Scoring & Ranking on narrowed candidates
+  const scoredRides = rides.map((ride) => {
+    const match = scoreRide(ride, {
+      pickupCoords,
+      destCoords,
+      departureTime,
+    });
+    return {
+      ...ride,
+      match,
+    };
+  });
+
+  // Sort descending by match score
+  scoredRides.sort((a, b) => b.match.score - a.match.score);
+
+  return scoredRides;
+};
+
+/**
+ * Suggest optimal pickup point for a ride given passenger pickup locations
+ */
+export const suggestPickupForRide = async (rideId, passengerPickups = []) => {
+  const ride = await getRideById(rideId);
+  const routePoints = ride.route?.coordinates || [];
+  return suggestPickupPoint(passengerPickups, routePoints);
 };
 
 /**

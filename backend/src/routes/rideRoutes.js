@@ -9,6 +9,13 @@ const router = Router();
 // Search endpoint (open for public/passenger discovery)
 router.get('/search', rideController.searchRides);
 
+// Cost-sharing calculation preview
+router.post('/cost-split', rideController.calculateCost);
+
+// Smart pickup point clustering suggestions
+router.post('/suggest-pickup', rideController.suggestPickup);
+router.post('/:id/suggest-pickup', rideController.suggestPickup);
+
 // List rides
 router.get('/', rideController.listRides);
 

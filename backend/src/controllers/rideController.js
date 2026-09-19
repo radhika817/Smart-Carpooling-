@@ -89,12 +89,78 @@ export const listRides = async (req, res, next) => {
   }
 };
 
+import { calculateCostSplit } from '../services/matching/costSharing.js';
+import { suggestPickupPoint } from '../services/matching/matchingService.js';
+
 export const searchRides = async (req, res, next) => {
   try {
-    const rides = await rideService.searchRides(req.query);
+    const {
+      pickup,
+      destination,
+      pickupLng,
+      pickupLat,
+      destLng,
+      destLat,
+      date,
+      departureTime,
+      seats,
+      radiusKm,
+    } = req.query;
+
+    let pickupCoords = null;
+    if (pickupLng !== undefined && pickupLat !== undefined && !isNaN(Number(pickupLng)) && !isNaN(Number(pickupLat))) {
+      pickupCoords = [parseFloat(pickupLng), parseFloat(pickupLat)];
+    }
+
+    let destCoords = null;
+    if (destLng !== undefined && destLat !== undefined && !isNaN(Number(destLng)) && !isNaN(Number(destLat))) {
+      destCoords = [parseFloat(destLng), parseFloat(destLat)];
+    }
+
+    const rides = await rideService.searchRides({
+      pickup,
+      destination,
+      pickupCoords,
+      destCoords,
+      date,
+      departureTime,
+      seats: seats ? parseInt(seats, 10) : 1,
+      radiusKm: radiusKm ? parseFloat(radiusKm) : 15,
+    });
+
     return res.status(200).json({
       success: true,
       data: rides,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const calculateCost = async (req, res, next) => {
+  try {
+    const calculation = calculateCostSplit(req.body);
+    return res.status(200).json({
+      success: true,
+      data: calculation,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const suggestPickup = async (req, res, next) => {
+  try {
+    const { passengerPickups, rideRoute } = req.body;
+    let result;
+    if (req.params.id) {
+      result = await rideService.suggestPickupForRide(req.params.id, passengerPickups);
+    } else {
+      result = suggestPickupPoint(passengerPickups, rideRoute);
+    }
+    return res.status(200).json({
+      success: true,
+      data: result,
     });
   } catch (error) {
     next(error);
