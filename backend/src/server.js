@@ -11,6 +11,7 @@ import rideRoutes from './routes/rideRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // 404 Handler
 app.use((req, res) => {
