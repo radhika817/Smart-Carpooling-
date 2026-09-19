@@ -104,6 +104,15 @@ const rideSchema = new mongoose.Schema(
       maxlength: [500, 'Notes cannot exceed 500 characters'],
       default: '',
     },
+    shareToken: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    shareExpiresAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

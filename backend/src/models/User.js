@@ -55,6 +55,24 @@ const userSchema = new mongoose.Schema(
         default: 0,
       },
     },
+    ratingsBreakdown: {
+      punctuality: {
+        average: { type: Number, default: 5.0, min: 1.0, max: 5.0 },
+        count: { type: Number, default: 0 },
+      },
+      safety: {
+        average: { type: Number, default: 5.0, min: 1.0, max: 5.0 },
+        count: { type: Number, default: 0 },
+      },
+      behaviour: {
+        average: { type: Number, default: 5.0, min: 1.0, max: 5.0 },
+        count: { type: Number, default: 0 },
+      },
+      cleanliness: {
+        average: { type: Number, default: 5.0, min: 1.0, max: 5.0 },
+        count: { type: Number, default: 0 },
+      },
+    },
     verificationStatus: {
       email: {
         type: Boolean,
@@ -68,7 +86,30 @@ const userSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
+      govtId: {
+        type: Boolean,
+        default: false,
+      },
     },
+    emergencyContacts: [
+      {
+        name: {
+          type: String,
+          required: [true, 'Contact name is required'],
+          trim: true,
+        },
+        phone: {
+          type: String,
+          required: [true, 'Contact phone is required'],
+          trim: true,
+        },
+        relationship: {
+          type: String,
+          trim: true,
+          default: 'Family',
+        },
+      },
+    ],
     preferences: {
       smoking: {
         type: Boolean,

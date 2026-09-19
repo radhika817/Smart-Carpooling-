@@ -170,6 +170,23 @@ export const initSocket = (httpServer, clientUrl) => {
       });
     });
 
+    // 4. Emergency SOS Trigger
+    socket.on('sos:trigger', async (data = {}) => {
+      try {
+        const { coordinates, address } = data;
+        const { triggerSos } = await import('../services/safety/safetyService.js');
+        const result = await triggerSos({
+          rideId,
+          userId: socket.userId,
+          coordinates,
+          address,
+        });
+        socket.emit('sos:confirmed', result);
+      } catch (err) {
+        socket.emit('error', { message: err.message || 'Failed to trigger SOS alert' });
+      }
+    });
+
     socket.on('disconnect', () => {
       console.log(`[Socket Disconnected] Ride: ${rideId} | Socket: ${socket.id}`);
     });

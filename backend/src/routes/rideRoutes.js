@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import * as rideController from '../controllers/rideController.js';
 import * as bookingController from '../controllers/bookingController.js';
+import * as safetyController from '../controllers/safetyController.js';
 import { requireAuth } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
 const router = Router();
+
+// Public time-boxed live tracking (must be before /:id)
+router.get('/track/:shareToken', safetyController.getPublicTracking);
 
 // Search endpoint (open for public/passenger discovery)
 router.get('/search', rideController.searchRides);
@@ -35,5 +39,9 @@ router.get('/:id/messages', requireAuth, rideController.getMessages);
 
 // Booking a seat on a ride (/api/rides/:id/book per §6 API contract)
 router.post('/:id/book', requireAuth, validate(bookingController.bookSeatSchema), bookingController.bookSeat);
+
+// Phase 6 Safety Features: SOS Emergency Trigger & Time-Boxed Share Tracking
+router.post('/:id/sos', requireAuth, safetyController.triggerSos);
+router.post('/:id/share-link', requireAuth, safetyController.generateShareLink);
 
 export default router;
