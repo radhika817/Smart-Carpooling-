@@ -45,4 +45,14 @@ export const rideService = {
     const res = await api.post(`/rides/${rideId}/book`, data);
     return res.data;
   },
+
+  async calculateCostSplit(data) {
+    const res = await api.post('/rides/cost-split', data);
+    return res.data;
+  },
+
+  async suggestPickup(data) {
+    const res = await api.post('/rides/suggest-pickup', data);
+    return res.data;
+  },
 };

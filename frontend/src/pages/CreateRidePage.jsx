@@ -33,12 +33,19 @@ export const CreateRidePage = () => {
     initialCoords: [73.8567, 18.5204],
   });
 
+  const [costBreakdown, setCostBreakdown] = useState({
+    fuel: 200,
+    toll: 0,
+    parking: 0,
+    other: 0,
+  });
+
   const [formData, setFormData] = useState({
     vehicleId: '',
     date: new Date().toISOString().split('T')[0],
     departureTime: '08:30',
     totalSeats: 3,
-    estimatedCost: 65,
+    estimatedCost: 50, // default ₹200 / 4 occupants
     notes: '',
     preferences: {
       music: true,
@@ -47,6 +54,21 @@ export const CreateRidePage = () => {
       petFriendly: false,
     },
   });
+
+  // Calculate live fair cost split
+  const totalTripCost =
+    (Number(costBreakdown.fuel) || 0) +
+    (Number(costBreakdown.toll) || 0) +
+    (Number(costBreakdown.parking) || 0) +
+    (Number(costBreakdown.other) || 0);
+
+  const totalOccupants = 1 + (Number(formData.totalSeats) || 1);
+  const calculatedFairShare = totalOccupants > 0 ? Math.round(totalTripCost / totalOccupants) : 0;
+  const driverShare = Math.max(0, totalTripCost - calculatedFairShare * (Number(formData.totalSeats) || 1));
+
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, estimatedCost: calculatedFairShare }));
+  }, [costBreakdown, formData.totalSeats]);
 
   useEffect(() => {
     const loadVehicles = async () => {
@@ -137,6 +159,12 @@ export const CreateRidePage = () => {
         departureTime: formData.departureTime,
         totalSeats: formData.totalSeats,
         estimatedCost: formData.estimatedCost,
+        costBreakdown: {
+          fuel: Number(costBreakdown.fuel) || 0,
+          toll: Number(costBreakdown.toll) || 0,
+          parking: Number(costBreakdown.parking) || 0,
+          other: Number(costBreakdown.other) || 0,
+        },
         preferences: formData.preferences,
         notes: formData.notes,
       };
@@ -298,24 +326,100 @@ export const CreateRidePage = () => {
             </div>
           </div>
 
-          {/* Pricing & Preferences */}
-          <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                Passenger Contribution (₹ per seat)
-              </label>
-              <p className="text-xs text-slate-400 mb-2">Fair cost-sharing for fuel & toll split.</p>
-              <div className="relative max-w-xs">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                <input
-                  type="number"
-                  name="estimatedCost"
-                  min="0"
-                  required
-                  value={formData.estimatedCost}
-                  onChange={handleChange}
-                  className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-brand-500"
-                />
+          {/* Pricing & Fair Cost-Sharing Calculator */}
+          <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-brand-400" />
+                  Fair Cost-Sharing Calculator
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Peer-to-peer carpool model: Trip expenses split equally among driver and passengers.
+                </p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-300 font-semibold text-xs border border-brand-500/20">
+                Non-Commercial
+              </span>
+            </div>
+
+            {/* Trip Expenses Inputs */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Estimated Fuel (₹)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-bold">₹</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={costBreakdown.fuel}
+                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, fuel: e.target.value }))}
+                    placeholder="200"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Toll Charges (₹)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-bold">₹</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={costBreakdown.toll}
+                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, toll: e.target.value }))}
+                    placeholder="0"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Parking / Other (₹)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-bold">₹</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={costBreakdown.parking}
+                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, parking: e.target.value }))}
+                    placeholder="0"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Live Arithmetic Calculation Box */}
+            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+              <div className="space-y-1">
+                <span className="font-bold text-slate-200">
+                  Total Trip Expense: <span className="text-white font-extrabold text-sm">₹{totalTripCost}</span>
+                </span>
+                <p className="text-slate-400">
+                  Split across <span className="text-brand-300 font-semibold">{totalOccupants} people</span> (1 driver + {formData.totalSeats} seats) ={' '}
+                  <span className="text-emerald-400 font-bold">₹{calculatedFairShare} / passenger</span>
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Driver absorbs fair share of ₹{driverShare}. 100% peer-to-peer, zero commercial markup.
+                </p>
+              </div>
+
+              <div className="flex flex-col items-end flex-shrink-0">
+                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Seat Contribution</span>
+                <div className="relative mt-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
+                  <input
+                    type="number"
+                    name="estimatedCost"
+                    min="0"
+                    required
+                    value={formData.estimatedCost}
+                    onChange={handleChange}
+                    className="w-28 pl-7 pr-2 py-1.5 rounded-lg bg-slate-900 border border-brand-500/40 text-sm font-bold text-white text-right focus:outline-none focus:border-brand-500"
+                  />
+                </div>
               </div>
             </div>
 
