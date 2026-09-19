@@ -20,6 +20,10 @@ import {
   Gauge,
   Sliders,
   DollarSign,
+  Building,
+  Repeat,
+  Users,
+  Lock,
 } from 'lucide-react';
 
 export const SearchRidesPage = () => {
@@ -34,6 +38,7 @@ export const SearchRidesPage = () => {
   const [date, setDate] = useState(searchParams.get('date') || '');
   const [departureTime, setDepartureTime] = useState(searchParams.get('time') || '');
   const [seats, setSeats] = useState(searchParams.get('seats') || '1');
+  const [communityOnly, setCommunityOnly] = useState(searchParams.get('communityOnly') === 'true');
 
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -64,6 +69,11 @@ export const SearchRidesPage = () => {
         params.destLat = destCoords[1];
       }
 
+      if (communityOnly && user?.organization) {
+        params.communityOnly = 'true';
+        params.organization = user.organization;
+      }
+
       const data = await rideService.searchRides(params);
       setRides(data || []);
     } catch (err) {
@@ -85,9 +95,14 @@ export const SearchRidesPage = () => {
     if (date) params.date = date;
     if (departureTime) params.time = departureTime;
     if (seats) params.seats = seats;
+    if (communityOnly) params.communityOnly = 'true';
     setSearchParams(params);
     executeSearch();
   };
+
+  useEffect(() => {
+    executeSearch();
+  }, [communityOnly]);
 
   const handleBook = async (ride) => {
     if (!isAuthenticated) {
@@ -225,6 +240,36 @@ export const SearchRidesPage = () => {
                 <Search className="w-4 h-4" /> Search Rides
               </button>
             </div>
+          </div>
+
+          {/* Phase 8: Community Scoping Toggle */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/60">
+            <div className="flex items-center gap-3">
+              <label
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition ${
+                  communityOnly
+                    ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-300 shadow-sm'
+                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                } ${!user?.organization ? 'opacity-40 cursor-not-allowed' : ''}`}
+                title={user?.organization ? `Filter for ${user.organization} rides` : 'Set your organization in Profile to unlock community filtering'}
+              >
+                <Building className="w-3.5 h-3.5 text-cyan-400" />
+                <input
+                  type="checkbox"
+                  checked={communityOnly}
+                  disabled={!user?.organization}
+                  onChange={(e) => setCommunityOnly(e.target.checked)}
+                  className="sr-only"
+                />
+                <span>My Community Only {user?.organization ? `(${user.organization})` : ''}</span>
+              </label>
+            </div>
+
+            {user?.organization && communityOnly && (
+              <span className="text-[11px] text-cyan-400 font-medium">
+                Filtering rides restricted to {user.organization} colleagues
+              </span>
+            )}
           </div>
         </form>
       </div>
@@ -375,6 +420,30 @@ export const SearchRidesPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   {/* Route & Driver Details */}
                   <div className="space-y-4 flex-1">
+                    {/* Phase 8: Scope & Recurrence Badges */}
+                    {(ride.communityScope?.isRestricted || ride.recurrence?.isRecurring || ride.carpoolGroup) && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {ride.communityScope?.isRestricted && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold flex items-center gap-1">
+                            <Building className="w-3 h-3 text-cyan-400" />
+                            {ride.communityScope.organization || 'Community Only'}
+                          </span>
+                        )}
+                        {ride.recurrence?.isRecurring && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[11px] font-bold flex items-center gap-1">
+                            <Repeat className="w-3 h-3 text-purple-400" />
+                            Recurring Series
+                          </span>
+                        )}
+                        {ride.carpoolGroup && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-[11px] font-bold flex items-center gap-1">
+                            <Users className="w-3 h-3 text-brand-400" />
+                            {ride.carpoolGroup.name || 'Carpool Circle'}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-brand-500/20 text-brand-300 font-bold flex items-center justify-center text-sm border border-brand-500/30">
                         {ride.driver?.name?.charAt(0) || 'D'}

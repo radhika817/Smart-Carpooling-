@@ -26,8 +26,8 @@ export const rideService = {
     return res.data;
   },
 
-  async cancelRide(id) {
-    const res = await api.delete(`/rides/${id}`);
+  async cancelRide(id, options = {}) {
+    const res = await api.delete(`/rides/${id}`, { params: options });
     return res;
   },
 

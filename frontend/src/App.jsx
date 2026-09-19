@@ -13,6 +13,9 @@ import { CreateRidePage } from './pages/CreateRidePage';
 import { LiveRidePage } from './pages/LiveRidePage';
 import { PublicTrackingPage } from './pages/PublicTrackingPage';
 import { AdminAnalyticsPage } from './pages/AdminAnalyticsPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { CarpoolGroupsPage } from './pages/CarpoolGroupsPage';
+import { CarpoolGroupDetailPage } from './pages/CarpoolGroupDetailPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient({
@@ -81,6 +84,30 @@ export function App() {
                 element={
                   <ProtectedRoute>
                     <AdminAnalyticsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="groups"
+                element={
+                  <ProtectedRoute>
+                    <CarpoolGroupsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="groups/:id"
+                element={
+                  <ProtectedRoute>
+                    <CarpoolGroupDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardPage />
                   </ProtectedRoute>
                 }
               />

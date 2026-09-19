@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.js",
     "test": "node src/tests/auth.test.js",
     "test:concurrency": "node src/tests/concurrency.test.js",
-    "test:e2e": "node src/tests/phase2_e2e.test.js"
+    "test:e2e": "node src/tests/phase2_e2e.test.js",
+    "seed:admin": "node src/utils/seedAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

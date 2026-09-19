@@ -32,13 +32,15 @@ export const registerUser = async (data) => {
   const salt = await bcrypt.genSalt(12);
   const passwordHash = await bcrypt.hash(password, salt);
 
+  const safeRole = role === 'admin' ? 'passenger' : role || 'passenger';
+
   const user = await User.create({
     name: name.trim(),
     email: normalizedEmail,
     passwordHash,
     phone: phone ? phone.trim() : '',
     organization: organization ? organization.trim() : '',
-    role: role || 'passenger',
+    role: safeRole,
     preferences: preferences || {
       smoking: false,
       music: true,
@@ -58,6 +60,13 @@ export const loginUser = async (email, password) => {
   if (!user) {
     const error = new Error('Invalid email or password.');
     error.statusCode = 401;
+    throw error;
+  }
+
+  if (user.isSuspended) {
+    const reason = user.suspendedReason ? `: ${user.suspendedReason}` : '';
+    const error = new Error(`Your account has been suspended by an administrator${reason}`);
+    error.statusCode = 403;
     throw error;
   }
 

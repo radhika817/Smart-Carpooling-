@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Ride } from '../../models/Ride.js';
 import * as vehicleService from '../vehicles/vehicleService.js';
 
@@ -34,7 +35,7 @@ export const restoreSeatsAtomic = async (rideId, seatsToRestore) => {
 };
 
 /**
- * Create a new offered ride
+ * Create a new offered ride (or recurring ride series)
  */
 export const createRide = async ({
   driverId,
@@ -49,6 +50,9 @@ export const createRide = async ({
   costBreakdown,
   preferences,
   notes,
+  recurrence,
+  communityScope,
+  carpoolGroup,
 }) => {
   // Verify vehicle ownership through vehicleService
   const vehicle = await vehicleService.getVehicleById(vehicleId);
@@ -58,6 +62,88 @@ export const createRide = async ({
     throw error;
   }
 
+  // Handle Recurring Ride Series Generation (Phase 8)
+  if (recurrence && recurrence.isRecurring) {
+    const startDateStr = recurrence.startDate || date;
+    const daysOfWeek = Array.isArray(recurrence.daysOfWeek) && recurrence.daysOfWeek.length > 0
+      ? recurrence.daysOfWeek
+      : [1, 2, 3, 4, 5]; // Default: weekdays
+
+    const startDate = new Date(startDateStr + 'T00:00:00.000Z');
+    let endDate;
+    if (recurrence.endDate) {
+      endDate = new Date(recurrence.endDate + 'T00:00:00.000Z');
+    } else {
+      // Default to 4 weeks (28 days)
+      endDate = new Date(startDate.getTime() + 28 * 24 * 60 * 60 * 1000);
+    }
+
+    // Cap at max 8 weeks (56 days) to prevent unbounded generation
+    const maxAllowedDate = new Date(startDate.getTime() + 56 * 24 * 60 * 60 * 1000);
+    if (endDate > maxAllowedDate) {
+      endDate = maxAllowedDate;
+    }
+
+    const occurrenceDates = [];
+    const curr = new Date(startDate);
+    while (curr <= endDate) {
+      const day = curr.getUTCDay();
+      if (daysOfWeek.includes(day)) {
+        occurrenceDates.push(curr.toISOString().split('T')[0]);
+      }
+      curr.setUTCDate(curr.getUTCDate() + 1);
+    }
+
+    if (occurrenceDates.length === 0) {
+      occurrenceDates.push(startDateStr);
+    }
+
+    const recurringGroupId = crypto.randomUUID();
+
+    const rideDocuments = occurrenceDates.map((d) => ({
+      driver: driverId,
+      vehicle: vehicleId,
+      startLocation,
+      destination,
+      route: route || null,
+      date: d,
+      departureTime,
+      totalSeats,
+      availableSeats: totalSeats,
+      estimatedCost,
+      costBreakdown: costBreakdown || {},
+      preferences: preferences || {},
+      notes: notes || '',
+      status: 'OPEN',
+      communityScope: communityScope || { isRestricted: false, organization: '' },
+      carpoolGroup: carpoolGroup || null,
+      recurrence: {
+        isRecurring: true,
+        frequency: recurrence.frequency || 'weekly',
+        daysOfWeek,
+        startDate: startDateStr,
+        endDate: occurrenceDates[occurrenceDates.length - 1],
+        recurringGroupId,
+      },
+    }));
+
+    const createdRides = await Ride.insertMany(rideDocuments);
+
+    const firstRide = await Ride.findById(createdRides[0]._id).populate([
+      { path: 'driver', select: 'name email phone profileImage organization rating verificationStatus' },
+      { path: 'vehicle', select: 'model registrationNumber type seats image' },
+      { path: 'carpoolGroup', select: 'name organization' },
+    ]);
+
+    const result = firstRide.toJSON();
+    result.isRecurringSeries = true;
+    result.recurringGroupId = recurringGroupId;
+    result.occurrencesCount = createdRides.length;
+    result.occurrenceDates = occurrenceDates;
+    return result;
+  }
+
+  // Single standard ride
   const ride = await Ride.create({
     driver: driverId,
     vehicle: vehicleId,
@@ -73,11 +159,22 @@ export const createRide = async ({
     preferences: preferences || {},
     notes: notes || '',
     status: 'OPEN',
+    communityScope: communityScope || { isRestricted: false, organization: '' },
+    carpoolGroup: carpoolGroup || null,
+    recurrence: {
+      isRecurring: false,
+      frequency: 'weekly',
+      daysOfWeek: [],
+      startDate: null,
+      endDate: null,
+      recurringGroupId: null,
+    },
   });
 
   return await ride.populate([
     { path: 'driver', select: 'name email phone profileImage organization rating verificationStatus' },
     { path: 'vehicle', select: 'model registrationNumber type seats image' },
+    { path: 'carpoolGroup', select: 'name organization' },
   ]);
 };
 
@@ -133,6 +230,9 @@ export const searchRides = async ({
   departureTime,
   seats,
   radiusKm = 15,
+  organization,
+  communityOnly,
+  carpoolGroup,
 }) => {
   const filter = {
     status: { $in: ['OPEN', 'BOOKING'] },
@@ -141,6 +241,10 @@ export const searchRides = async ({
 
   if (date) {
     filter.date = date;
+  }
+
+  if (carpoolGroup) {
+    filter.carpoolGroup = carpoolGroup;
   }
 
   // Step 1: MongoDB 2dsphere Geospatial Filtering
@@ -154,13 +258,38 @@ export const searchRides = async ({
     };
   }
 
-  // Fetch narrowed candidates from MongoDB with populated driver & vehicle
+  // Fetch narrowed candidates from MongoDB with populated driver, vehicle, and group
   let rides = await Ride.find(filter)
     .populate([
       { path: 'driver', select: 'name email phone profileImage organization rating verificationStatus' },
       { path: 'vehicle', select: 'model registrationNumber type seats image' },
+      { path: 'carpoolGroup', select: 'name organization' },
     ])
     .lean();
+
+  // Community Scope Filtering (Phase 8)
+  const normalizedUserOrg = organization ? organization.toLowerCase().trim() : '';
+
+  rides = rides.filter((r) => {
+    // If ride is restricted to a community, searcher must match
+    if (r.communityScope?.isRestricted) {
+      const rideOrg = r.communityScope.organization?.toLowerCase().trim();
+      if (!normalizedUserOrg || normalizedUserOrg !== rideOrg) {
+        return false;
+      }
+    }
+
+    // If user specifically requested community-only rides
+    if (communityOnly && normalizedUserOrg) {
+      const rideOrg = r.communityScope?.organization?.toLowerCase().trim();
+      const driverOrg = r.driver?.organization?.toLowerCase().trim();
+      if (rideOrg !== normalizedUserOrg && driverOrg !== normalizedUserOrg) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   // If text query provided without coordinates, apply fallback text filter
   if (pickup && (!pickupCoords || pickupCoords.length !== 2)) {
@@ -223,14 +352,36 @@ export const updateRide = async (rideId, driverId, updateData) => {
 };
 
 /**
- * Cancel ride
+ * Cancel ride (supports single occurrence or recurring series cancellation)
  */
-export const cancelRide = async (rideId, driverId) => {
+export const cancelRide = async (rideId, driverId, options = {}) => {
   const ride = await getRideById(rideId);
   if (ride.driver._id.toString() !== driverId.toString()) {
     const error = new Error('Forbidden: You can only cancel your own rides.');
     error.statusCode = 403;
     throw error;
+  }
+
+  const cancelSeries = options.cancelSeries === true || options.cancelSeries === 'true';
+
+  if (cancelSeries && ride.recurrence?.recurringGroupId) {
+    const updateResult = await Ride.updateMany(
+      {
+        driver: driverId,
+        'recurrence.recurringGroupId': ride.recurrence.recurringGroupId,
+        date: { $gte: ride.date },
+        status: { $in: ['OPEN', 'BOOKING'] },
+      },
+      { $set: { status: 'CANCELLED' } }
+    );
+
+    ride.status = 'CANCELLED';
+    await ride.save();
+
+    const json = ride.toJSON();
+    json.seriesCancelled = true;
+    json.cancelledOccurrencesCount = updateResult.modifiedCount || 1;
+    return json;
   }
 
   ride.status = 'CANCELLED';

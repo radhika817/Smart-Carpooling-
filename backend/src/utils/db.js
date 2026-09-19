@@ -17,6 +17,9 @@ export const connectDB = async () => {
       // Ensure existing users retroactively have full verificationStatus schema
       const { runVerificationMigration } = await import('./migrateVerificationStatus.js');
       await runVerificationMigration().catch((err) => console.warn('Migration notice:', err.message));
+      // Ensure initial system administrator is provisioned
+      const { runAdminSeed } = await import('./seedAdmin.js');
+      await runAdminSeed().catch((err) => console.warn('Admin seed notice:', err.message));
       return;
     }
 
@@ -30,6 +33,8 @@ export const connectDB = async () => {
 
     await mongoose.connect(memoryUri);
     console.log(`✅ Local In-Memory MongoDB Connected at: ${memoryUri}`);
+    const { runAdminSeed } = await import('./seedAdmin.js');
+    await runAdminSeed().catch((err) => console.warn('Admin seed notice:', err.message));
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
     throw error;

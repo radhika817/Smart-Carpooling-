@@ -33,6 +33,22 @@ export const createRideSchema = z.object({
     })
     .optional(),
   notes: z.string().max(500).optional(),
+  recurrence: z
+    .object({
+      isRecurring: z.boolean().optional(),
+      frequency: z.enum(['daily', 'weekly', 'weekdays']).optional(),
+      daysOfWeek: z.array(z.number().min(0).max(6)).optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    })
+    .optional(),
+  communityScope: z
+    .object({
+      isRestricted: z.boolean().optional(),
+      organization: z.string().optional(),
+    })
+    .optional(),
+  carpoolGroup: z.string().optional().nullable(),
 });
 
 export const updateRideSchema = z.object({
@@ -105,6 +121,9 @@ export const searchRides = async (req, res, next) => {
       departureTime,
       seats,
       radiusKm,
+      organization,
+      communityOnly,
+      carpoolGroup,
     } = req.query;
 
     let pickupCoords = null;
@@ -126,6 +145,9 @@ export const searchRides = async (req, res, next) => {
       departureTime,
       seats: seats ? parseInt(seats, 10) : 1,
       radiusKm: radiusKm ? parseFloat(radiusKm) : 15,
+      organization,
+      communityOnly: communityOnly === 'true' || communityOnly === true,
+      carpoolGroup,
     });
 
     return res.status(200).json({
@@ -186,11 +208,14 @@ export const updateRide = async (req, res, next) => {
 
 export const deleteRide = async (req, res, next) => {
   try {
-    const ride = await rideService.cancelRide(req.params.id, req.user._id || req.user.id);
+    const cancelSeries = req.query.cancelSeries === 'true';
+    const result = await rideService.cancelRide(req.params.id, req.user._id || req.user.id, {
+      cancelSeries,
+    });
     return res.status(200).json({
       success: true,
-      message: 'Ride cancelled successfully',
-      data: ride,
+      message: cancelSeries ? 'Recurring ride series cancelled successfully' : 'Ride cancelled successfully',
+      data: result,
     });
   } catch (error) {
     next(error);

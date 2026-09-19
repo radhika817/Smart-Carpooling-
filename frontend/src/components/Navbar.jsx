@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, User, Menu, X, ShieldCheck, BarChart3 } from 'lucide-react';
+import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, User, Menu, X, ShieldCheck, BarChart3, Users, ShieldAlert } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -78,6 +78,18 @@ export const Navbar = () => {
             )}
 
             <Link
+              to="/groups"
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive('/groups') || location.pathname.startsWith('/groups/')
+                  ? 'bg-slate-800 text-brand-400 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Users className="w-4 h-4 text-cyan-400" />
+              <span>Groups</span>
+            </Link>
+
+            <Link
               to="/dashboard"
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive('/dashboard')
@@ -100,6 +112,20 @@ export const Navbar = () => {
               <BarChart3 className="w-4 h-4 text-emerald-400" />
               <span>Analytics</span>
             </Link>
+
+            {user?.role === 'admin' && (
+              <Link
+                to="/admin"
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
+                  isActive('/admin')
+                    ? 'bg-purple-600/20 text-purple-300 border border-purple-500/40'
+                    : 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Admin Console</span>
+              </Link>
+            )}
           </nav>
 
           {/* Desktop Auth Controls */}
@@ -165,6 +191,45 @@ export const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-800 bg-slate-950/95 px-4 pt-3 pb-5 space-y-3">
           <Link
+            to="/search"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+          >
+            <Compass className="w-4 h-4" />
+            <span>Find Ride</span>
+          </Link>
+
+          {user?.role === 'driver' && (
+            <>
+              <Link
+                to="/create-ride"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+              >
+                <PlusCircle className="w-4 h-4 text-emerald-400" />
+                <span>Post Ride</span>
+              </Link>
+              <Link
+                to="/vehicles"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+              >
+                <Car className="w-4 h-4 text-amber-400" />
+                <span>Vehicles</span>
+              </Link>
+            </>
+          )}
+
+          <Link
+            to="/groups"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+          >
+            <Users className="w-4 h-4 text-cyan-400" />
+            <span>Carpool Groups</span>
+          </Link>
+
+          <Link
             to="/dashboard"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
@@ -181,6 +246,17 @@ export const Navbar = () => {
             <BarChart3 className="w-4 h-4 text-emerald-400" />
             <span>Platform Analytics</span>
           </Link>
+
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center space-x-2 py-2 text-purple-400 hover:text-purple-300 font-bold text-sm"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Admin Console</span>
+            </Link>
+          )}
 
           {isAuthenticated ? (
             <div className="pt-3 border-t border-slate-800 space-y-3">

@@ -113,6 +113,45 @@ const rideSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    recurrence: {
+      isRecurring: {
+        type: Boolean,
+        default: false,
+        index: true,
+      },
+      frequency: {
+        type: String,
+        enum: ['daily', 'weekly', 'weekdays'],
+        default: 'weekly',
+      },
+      daysOfWeek: [{ type: Number }], // 0 = Sun, 1 = Mon ... 6 = Sat
+      startDate: { type: String, default: null }, // YYYY-MM-DD
+      endDate: { type: String, default: null }, // YYYY-MM-DD
+      recurringGroupId: {
+        type: String,
+        default: null,
+        index: true,
+      },
+    },
+    communityScope: {
+      isRestricted: {
+        type: Boolean,
+        default: false,
+        index: true,
+      },
+      organization: {
+        type: String,
+        default: '',
+        trim: true,
+        index: true,
+      },
+    },
+    carpoolGroup: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CarpoolGroup',
+      default: null,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -126,5 +165,8 @@ rideSchema.index({ 'destination.coordinates': '2dsphere' });
 // Compound indexes for searching and dashboard lookups
 rideSchema.index({ date: 1, status: 1 });
 rideSchema.index({ driver: 1, status: 1 });
+rideSchema.index({ 'recurrence.recurringGroupId': 1, date: 1 });
+rideSchema.index({ 'communityScope.organization': 1, status: 1 });
+rideSchema.index({ carpoolGroup: 1, status: 1 });
 
 export const Ride = mongoose.model('Ride', rideSchema);

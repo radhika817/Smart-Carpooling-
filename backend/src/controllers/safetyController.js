@@ -3,7 +3,8 @@ import * as safetyService from '../services/safety/safetyService.js';
 export const triggerSos = async (req, res, next) => {
   try {
     const { id: rideId } = req.params;
-    const { coordinates, address } = req.body;
+    const coordinates = req.body.coordinates || req.body.location?.coordinates;
+    const address = req.body.address || req.body.location?.address;
     const userId = req.user._id || req.user.id;
 
     const result = await safetyService.triggerSos({
