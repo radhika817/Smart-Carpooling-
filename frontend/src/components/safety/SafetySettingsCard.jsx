@@ -45,7 +45,8 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
     try {
       setLoading(true);
       const res = await userService.getEmergencyContacts();
-      setContacts(res.data.contacts || []);
+      const list = res?.contacts || res?.data?.contacts || (Array.isArray(res) ? res : []);
+      setContacts(list);
     } catch (err) {
       console.warn('Could not load contacts:', err.message);
     } finally {
@@ -65,7 +66,8 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
         phone: phoneNum.trim(),
         relationship,
       });
-      setContacts(res.data.contacts || []);
+      const list = res?.contacts || res?.data?.contacts || (Array.isArray(res) ? res : []);
+      setContacts(list);
       setName('');
       setPhoneNum('');
       setShowAddContact(false);
@@ -81,7 +83,8 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
     if (!window.confirm('Remove this emergency contact?')) return;
     try {
       const res = await userService.deleteEmergencyContact(contactId);
-      setContacts(res.data.contacts || []);
+      const list = res?.contacts || res?.data?.contacts || (Array.isArray(res) ? res : []);
+      setContacts(list);
       if (onUpdate) onUpdate();
     } catch (err) {
       alert('Could not remove contact: ' + err.message);

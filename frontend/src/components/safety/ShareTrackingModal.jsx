@@ -15,7 +15,7 @@ export const ShareTrackingModal = ({ rideId }) => {
     setError('');
     try {
       const res = await safetyService.generateShareLink(rideId, durationHours);
-      setShareData(res.data);
+      setShareData(res?.data || res);
     } catch (err) {
       setError(err.message || 'Could not generate shareable tracking link');
     } finally {

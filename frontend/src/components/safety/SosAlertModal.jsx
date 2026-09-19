@@ -52,7 +52,7 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
         address: 'Live In-Ride Tracking Location',
       });
 
-      setSosSuccess(res.data);
+      setSosSuccess(res?.data || res);
     } catch (err) {
       setErrorMessage(err.message || 'Failed to activate SOS emergency alert');
     } finally {

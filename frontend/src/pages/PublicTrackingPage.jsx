@@ -36,7 +36,7 @@ export const PublicTrackingPage = () => {
     try {
       setLoading(true);
       const res = await safetyService.getPublicTracking(shareToken);
-      setTelemetry(res.data);
+      setTelemetry(res?.data || res);
     } catch (err) {
       if (err.response?.status === 410 || err.message?.includes('expired') || err.message?.includes('concluded')) {
         setIsExpired(true);
