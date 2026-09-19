@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, User, Menu, X, ShieldCheck } from 'lucide-react';
+import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, User, Menu, X, ShieldCheck, BarChart3 } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -88,6 +88,18 @@ export const Navbar = () => {
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard</span>
             </Link>
+
+            <Link
+              to="/admin/analytics"
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive('/admin/analytics')
+                  ? 'bg-slate-800 text-brand-400 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 text-emerald-400" />
+              <span>Analytics</span>
+            </Link>
           </nav>
 
           {/* Desktop Auth Controls */}
@@ -159,6 +171,15 @@ export const Navbar = () => {
           >
             <LayoutDashboard className="w-4 h-4" />
             <span>Dashboard</span>
+          </Link>
+
+          <Link
+            to="/admin/analytics"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+          >
+            <BarChart3 className="w-4 h-4 text-emerald-400" />
+            <span>Platform Analytics</span>
           </Link>
 
           {isAuthenticated ? (

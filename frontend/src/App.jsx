@@ -12,6 +12,7 @@ import { VehiclesPage } from './pages/VehiclesPage';
 import { CreateRidePage } from './pages/CreateRidePage';
 import { LiveRidePage } from './pages/LiveRidePage';
 import { PublicTrackingPage } from './pages/PublicTrackingPage';
+import { AdminAnalyticsPage } from './pages/AdminAnalyticsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient({
@@ -64,6 +65,22 @@ export function App() {
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin/analytics"
+                element={
+                  <ProtectedRoute>
+                    <AdminAnalyticsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="analytics"
+                element={
+                  <ProtectedRoute>
+                    <AdminAnalyticsPage />
                   </ProtectedRoute>
                 }
               />

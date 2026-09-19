@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { SafetySettingsCard } from '../components/safety/SafetySettingsCard';
 import { RateRideModal } from '../components/safety/RateRideModal';
+import { PersonalAnalyticsCard } from '../components/analytics/PersonalAnalyticsCard';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -160,6 +161,9 @@ export const DashboardPage = () => {
           <span>{actionSuccess}</span>
         </div>
       )}
+
+      {/* Phase 7 Personal Impact & Commute Analytics */}
+      <PersonalAnalyticsCard user={user} />
 
       {/* Driver Section: Offered Rides */}
       {isDriver && (
