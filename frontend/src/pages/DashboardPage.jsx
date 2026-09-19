@@ -19,7 +19,8 @@ import {
   Play,
   CheckCheck,
   Ban,
-  ArrowRight
+  ArrowRight,
+  Radio,
 } from 'lucide-react';
 
 export const DashboardPage = () => {
@@ -231,28 +232,33 @@ export const DashboardPage = () => {
                     </span>
                   </div>
 
-                  {/* Lifecycle Buttons */}
-                  {ride.status === 'OPEN' && (
-                    <div className="pt-2 flex gap-2">
+                  {/* Lifecycle & Live Tracking Buttons */}
+                  <div className="pt-2 flex flex-wrap gap-2">
+                    <Link
+                      to={`/rides/${ride._id}/live`}
+                      className="flex-1 py-2 px-3 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
+                    >
+                      <Radio className="w-3.5 h-3.5 text-slate-950" /> Live Track & Chat
+                    </Link>
+
+                    {ride.status === 'OPEN' && (
                       <button
                         onClick={() => handleStartRide(ride._id)}
-                        className="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 transition"
+                        className="py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 transition"
                       >
-                        <Play className="w-3.5 h-3.5 fill-current" /> Start Ride
+                        <Play className="w-3.5 h-3.5 fill-current" /> Start
                       </button>
-                    </div>
-                  )}
+                    )}
 
-                  {ride.status === 'IN_PROGRESS' && (
-                    <div className="pt-2 flex gap-2">
+                    {ride.status === 'IN_PROGRESS' && (
                       <button
                         onClick={() => handleCompleteRide(ride._id)}
-                        className="flex-1 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 transition"
+                        className="py-2 px-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 transition"
                       >
-                        <CheckCheck className="w-3.5 h-3.5" /> Mark Completed
+                        <CheckCheck className="w-3.5 h-3.5" /> Complete
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -327,14 +333,23 @@ export const DashboardPage = () => {
                     <Calendar className="w-3 h-3 text-slate-500" /> {b.ride?.date} at {b.ride?.departureTime}
                   </span>
 
-                  {b.status === 'CONFIRMED' && (
-                    <button
-                      onClick={() => handleCancelBooking(b._id)}
-                      className="text-xs text-red-400 hover:text-red-300 font-semibold transition"
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/rides/${b.ride?._id || b.ride}/live`}
+                      className="py-1 px-2.5 rounded-lg bg-brand-500/10 hover:bg-brand-500/20 text-brand-300 font-semibold text-xs border border-brand-500/20 flex items-center gap-1 transition"
                     >
-                      Cancel Booking
-                    </button>
-                  )}
+                      <Radio className="w-3 h-3 text-emerald-400 animate-pulse" /> Live Track & Chat
+                    </Link>
+
+                    {b.status === 'CONFIRMED' && (
+                      <button
+                        onClick={() => handleCancelBooking(b._id)}
+                        className="text-xs text-red-400 hover:text-red-300 font-medium transition"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

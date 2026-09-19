@@ -197,9 +197,18 @@ export const deleteRide = async (req, res, next) => {
   }
 };
 
+import { broadcastToRide } from '../socket/index.js';
+import { getRideMessages } from '../services/chat/chatService.js';
+
 export const startRide = async (req, res, next) => {
   try {
     const ride = await rideService.startRide(req.params.id, req.user._id || req.user.id);
+    broadcastToRide(req.params.id, 'ride:status', {
+      rideId: req.params.id,
+      status: 'IN_PROGRESS',
+      message: 'Ride has started! Real-time tracking is now active.',
+      timestamp: Date.now(),
+    });
     return res.status(200).json({
       success: true,
       message: 'Ride started',
@@ -213,10 +222,52 @@ export const startRide = async (req, res, next) => {
 export const completeRide = async (req, res, next) => {
   try {
     const ride = await rideService.completeRide(req.params.id, req.user._id || req.user.id);
+    broadcastToRide(req.params.id, 'ride:status', {
+      rideId: req.params.id,
+      status: 'COMPLETED',
+      message: 'Ride completed successfully. Thank you for carpooling!',
+      timestamp: Date.now(),
+    });
     return res.status(200).json({
       success: true,
       message: 'Ride completed',
       data: ride,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateRideStatus = async (req, res, next) => {
+  try {
+    const { status, message } = req.body;
+    const ride = await rideService.updateRideStatus(
+      req.params.id,
+      req.user._id || req.user.id,
+      status
+    );
+    broadcastToRide(req.params.id, 'ride:status', {
+      rideId: req.params.id,
+      status,
+      message: message || `Driver updated ride status to ${status}`,
+      timestamp: Date.now(),
+    });
+    return res.status(200).json({
+      success: true,
+      message: `Ride status updated to ${status}`,
+      data: ride,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMessages = async (req, res, next) => {
+  try {
+    const messages = await getRideMessages(req.params.id, req.user._id || req.user.id);
+    return res.status(200).json({
+      success: true,
+      data: messages,
     });
   } catch (error) {
     next(error);

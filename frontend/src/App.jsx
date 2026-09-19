@@ -10,6 +10,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { SearchRidesPage } from './pages/SearchRidesPage';
 import { VehiclesPage } from './pages/VehiclesPage';
 import { CreateRidePage } from './pages/CreateRidePage';
+import { LiveRidePage } from './pages/LiveRidePage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient({
@@ -45,6 +46,14 @@ export function App() {
                 element={
                   <ProtectedRoute>
                     <CreateRidePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="rides/:id/live"
+                element={
+                  <ProtectedRoute>
+                    <LiveRidePage />
                   </ProtectedRoute>
                 }
               />

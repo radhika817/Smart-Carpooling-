@@ -28,6 +28,10 @@ router.put('/:id', requireAuth, validate(rideController.updateRideSchema), rideC
 router.delete('/:id', requireAuth, rideController.deleteRide);
 router.post('/:id/start', requireAuth, rideController.startRide);
 router.post('/:id/complete', requireAuth, rideController.completeRide);
+router.post('/:id/status', requireAuth, rideController.updateRideStatus);
+
+// In-ride chat message history
+router.get('/:id/messages', requireAuth, rideController.getMessages);
 
 // Booking a seat on a ride (/api/rides/:id/book per §6 API contract)
 router.post('/:id/book', requireAuth, validate(bookingController.bookSeatSchema), bookingController.bookSeat);

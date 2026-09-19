@@ -55,4 +55,14 @@ export const rideService = {
     const res = await api.post('/rides/suggest-pickup', data);
     return res.data;
   },
+
+  async getRideMessages(rideId) {
+    const res = await api.get(`/rides/${rideId}/messages`);
+    return res.data;
+  },
+
+  async updateRideStatus(rideId, status, message) {
+    const res = await api.post(`/rides/${rideId}/status`, { status, message });
+    return res.data;
+  },
 };

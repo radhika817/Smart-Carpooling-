@@ -269,3 +269,35 @@ export const completeRide = async (rideId, driverId) => {
   await ride.save();
   return ride;
 };
+
+/**
+ * Update ride lifecycle status (e.g. DRIVER_ARRIVING, IN_PROGRESS, COMPLETED)
+ */
+export const updateRideStatus = async (rideId, driverId, newStatus) => {
+  const ride = await getRideById(rideId);
+  if (ride.driver._id.toString() !== driverId.toString()) {
+    const error = new Error('Forbidden: Only the driver can update the ride status.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const validStatuses = [
+    'OPEN',
+    'BOOKING',
+    'CONFIRMED',
+    'DRIVER_ARRIVING',
+    'IN_PROGRESS',
+    'COMPLETED',
+    'CANCELLED',
+    'NO_SHOW',
+  ];
+  if (!validStatuses.includes(newStatus)) {
+    const error = new Error(`Invalid ride status: ${newStatus}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  ride.status = newStatus;
+  await ride.save();
+  return ride;
+};
