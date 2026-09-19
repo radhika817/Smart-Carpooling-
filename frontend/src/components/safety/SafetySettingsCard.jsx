@@ -330,18 +330,18 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
 
           <div className="space-y-2.5">
             {/* Email Verification */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-slate-400" />
-                <div>
+            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <div className="min-w-0">
                   <span className="text-xs font-semibold text-white block">Email Address</span>
-                  <span className="text-[10px] text-slate-500">{currentUser?.email}</span>
+                  <span className="text-[10px] text-slate-500 block truncate">{currentUser?.email || 'Not provided'}</span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleToggleVerification('email')}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 ${
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
                   verification.email
                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                     : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
@@ -352,18 +352,18 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             </div>
 
             {/* Phone Verification */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-slate-400" />
-                <div>
+            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                <div className="min-w-0">
                   <span className="text-xs font-semibold text-white block">Phone Number</span>
-                  <span className="text-[10px] text-slate-500">{currentUser?.phone || 'Not provided'}</span>
+                  <span className="text-[10px] text-slate-500 block truncate">{currentUser?.phone || 'Not provided'}</span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleToggleVerification('phone')}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 ${
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
                   verification.phone
                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                     : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
@@ -374,12 +374,12 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             </div>
 
             {/* Workplace / College Verification */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <Building className="w-4 h-4 text-slate-400" />
-                <div>
+            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <Building className="w-4 h-4 text-slate-400 shrink-0" />
+                <div className="min-w-0">
                   <span className="text-xs font-semibold text-white block">Campus / Workplace</span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[10px] text-slate-500 block truncate">
                     {currentUser?.organization || 'Registered Organization'}
                   </span>
                 </div>
@@ -387,7 +387,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
               <button
                 type="button"
                 onClick={() => handleToggleVerification('organization')}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 ${
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
                   verification.organization
                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                     : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
@@ -398,12 +398,12 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             </div>
 
             {/* Real Government / Student ID Upload Item */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className={`w-4 h-4 ${verification.govtId ? 'text-emerald-400' : 'text-slate-400'}`} />
-                <div>
+            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <ShieldCheck className={`w-4 h-4 shrink-0 ${verification.govtId ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <div className="min-w-0">
                   <span className="text-xs font-semibold text-white block">Government / Student ID</span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[10px] text-slate-500 block truncate">
                     {verification.govtId
                       ? 'Encrypted in private vault'
                       : 'Upload photo identity document'}
@@ -411,7 +411,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 shrink-0">
                 {verification.govtId ? (
                   <>
                     <button
@@ -420,26 +420,27 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                       className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1"
                       title="View private document"
                     >
-                      <Eye className="w-3 h-3 text-brand-400" />
+                      <Eye className="w-3 h-3 text-slate-400" />
                       <span>View</span>
                     </button>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-500/10 text-brand-300 border border-brand-500/30 flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                       ✓ Verified
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowUploadModal(true)}
-                      className="text-[10px] text-slate-400 hover:text-brand-300 underline ml-1"
+                      className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1"
                       title="Replace existing ID"
                     >
-                      Replace
+                      <RefreshCw className="w-2.5 h-2.5 text-slate-400" />
+                      <span>Replace</span>
                     </button>
                   </>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setShowUploadModal(true)}
-                    className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-500 hover:bg-brand-400 text-slate-950 shadow transition flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-500 hover:bg-brand-400 text-slate-950 shadow transition flex items-center gap-1 shrink-0"
                   >
                     <UploadCloud className="w-3 h-3 stroke-[2.5]" />
                     <span>Upload ID</span>
