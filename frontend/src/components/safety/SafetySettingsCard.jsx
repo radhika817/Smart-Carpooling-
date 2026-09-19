@@ -21,13 +21,18 @@ import {
   FileCheck,
 } from 'lucide-react';
 import { userService } from '../../services/userService';
+import { useAuth } from '../../context/AuthContext';
 
 export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
+  const { refreshUser } = useAuth();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [verification, setVerification] = useState(
-    currentUser?.verificationStatus || { email: true, phone: false, organization: false, govtId: false }
-  );
+  const [verification, setVerification] = useState({
+    email: Boolean(currentUser?.verificationStatus?.email),
+    phone: Boolean(currentUser?.verificationStatus?.phone),
+    organization: Boolean(currentUser?.verificationStatus?.organization),
+    govtId: Boolean(currentUser?.verificationStatus?.govtId),
+  });
 
   // Form state for adding emergency contact
   const [showAddContact, setShowAddContact] = useState(false);
@@ -63,14 +68,37 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
   };
 
   useEffect(() => {
+    loadLiveProfile();
     loadContacts();
   }, []);
 
   useEffect(() => {
     if (currentUser?.verificationStatus) {
-      setVerification(currentUser.verificationStatus);
+      setVerification({
+        email: Boolean(currentUser.verificationStatus.email),
+        phone: Boolean(currentUser.verificationStatus.phone),
+        organization: Boolean(currentUser.verificationStatus.organization),
+        govtId: Boolean(currentUser.verificationStatus.govtId),
+      });
     }
   }, [currentUser]);
+
+  const loadLiveProfile = async () => {
+    try {
+      const res = await userService.getProfile();
+      const liveUser = res?.user || res?.data?.user || res;
+      if (liveUser?.verificationStatus) {
+        setVerification({
+          email: Boolean(liveUser.verificationStatus.email),
+          phone: Boolean(liveUser.verificationStatus.phone),
+          organization: Boolean(liveUser.verificationStatus.organization),
+          govtId: Boolean(liveUser.verificationStatus.govtId),
+        });
+      }
+    } catch (err) {
+      console.warn('Could not load live user verification profile:', err.message);
+    }
+  };
 
   const loadContacts = async () => {
     try {
@@ -123,13 +151,25 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
   };
 
   const handleToggleVerification = async (key) => {
-    const updated = { ...verification, [key]: !verification[key] };
-    setVerification(updated);
+    const nextVal = !verification[key];
     try {
-      await userService.updateVerification({ [key]: updated[key] });
+      const res = await userService.updateVerification({ [key]: nextVal });
+      const freshStatus = res?.data?.verificationStatus || res?.verificationStatus;
+      if (freshStatus) {
+        setVerification({
+          email: Boolean(freshStatus.email),
+          phone: Boolean(freshStatus.phone),
+          organization: Boolean(freshStatus.organization),
+          govtId: Boolean(freshStatus.govtId),
+        });
+      } else {
+        setVerification((prev) => ({ ...prev, [key]: nextVal }));
+      }
+      if (refreshUser) refreshUser();
       if (onUpdate) onUpdate();
     } catch (err) {
       console.warn('Could not update verification:', err.message);
+      loadLiveProfile();
     }
   };
 
@@ -198,8 +238,19 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
       setUploadProgress(100);
       setUploadSuccess('ID document uploaded and verified successfully!');
 
-      // Automatically update verificationStatus.govtId to true
-      setVerification((prev) => ({ ...prev, govtId: true }));
+      const freshStatus = res?.data?.verificationStatus || res?.verificationStatus;
+      if (freshStatus) {
+        setVerification({
+          email: Boolean(freshStatus.email),
+          phone: Boolean(freshStatus.phone),
+          organization: Boolean(freshStatus.organization),
+          govtId: Boolean(freshStatus.govtId),
+        });
+      } else {
+        setVerification((prev) => ({ ...prev, govtId: true }));
+      }
+
+      if (refreshUser) refreshUser();
 
       // Clean up after 1.5 seconds
       setTimeout(() => {

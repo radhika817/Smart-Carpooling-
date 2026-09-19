@@ -14,6 +14,9 @@ export const connectDB = async () => {
       console.log('Connecting to MongoDB Atlas / External URI...');
       await mongoose.connect(uri);
       console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
+      // Ensure existing users retroactively have full verificationStatus schema
+      const { runVerificationMigration } = await import('./migrateVerificationStatus.js');
+      await runVerificationMigration().catch((err) => console.warn('Migration notice:', err.message));
       return;
     }
 

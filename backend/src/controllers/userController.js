@@ -141,6 +141,7 @@ export const updateVerification = async (req, res, next) => {
     if (organization !== undefined) user.verificationStatus.organization = Boolean(organization);
     if (govtId !== undefined) user.verificationStatus.govtId = Boolean(govtId);
 
+    user.markModified('verificationStatus');
     await user.save();
 
     return res.status(200).json({

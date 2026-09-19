@@ -149,10 +149,27 @@ const userSchema = new mongoose.Schema(
         delete ret.passwordHash;
         delete ret.__v;
         ret.id = ret._id;
+        ret.verificationStatus = {
+          email: Boolean(ret.verificationStatus?.email),
+          phone: Boolean(ret.verificationStatus?.phone),
+          organization: Boolean(ret.verificationStatus?.organization),
+          govtId: Boolean(ret.verificationStatus?.govtId),
+        };
         return ret;
       },
     },
   }
 );
+
+userSchema.post('init', function (doc) {
+  if (!doc.verificationStatus) {
+    doc.verificationStatus = { email: false, phone: false, organization: false, govtId: false };
+  } else {
+    if (doc.verificationStatus.email === undefined) doc.verificationStatus.email = false;
+    if (doc.verificationStatus.phone === undefined) doc.verificationStatus.phone = false;
+    if (doc.verificationStatus.organization === undefined) doc.verificationStatus.organization = false;
+    if (doc.verificationStatus.govtId === undefined) doc.verificationStatus.govtId = false;
+  }
+});
 
 export const User = mongoose.model('User', userSchema);

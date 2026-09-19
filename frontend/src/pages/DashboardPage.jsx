@@ -28,7 +28,7 @@ import { PersonalAnalyticsCard } from '../components/analytics/PersonalAnalytics
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 export const DashboardPage = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const isDriver = user?.role === 'driver';
 
   const [myRides, setMyRides] = useState([]);
@@ -38,11 +38,13 @@ export const DashboardPage = () => {
   const [actionSuccess, setActionSuccess] = useState('');
   const [activeRating, setActiveRating] = useState(null);
 
+  const userId = user?._id || user?.id;
+
   const loadDashboardData = async () => {
     setLoading(true);
     try {
       if (isDriver) {
-        const rides = await rideService.getRides({ driver: user?._id || user?.id });
+        const rides = await rideService.getRides({ driver: userId });
         setMyRides(rides || []);
       }
       const bookings = await bookingService.getMyBookings();
@@ -55,10 +57,16 @@ export const DashboardPage = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (refreshUser) {
+      refreshUser();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
       loadDashboardData();
     }
-  }, [user]);
+  }, [userId, isDriver]);
 
   const handleStartRide = async (rideId) => {
     setActionError('');
