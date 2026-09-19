@@ -91,6 +91,19 @@ const userSchema = new mongoose.Schema(
         default: false,
       },
     },
+    govtIdDocument: {
+      publicId: { type: String, default: '' },
+      storageType: {
+        type: String,
+        enum: ['cloudinary', 'local', 'simulated_private'],
+        default: 'local',
+      },
+      url: { type: String, default: '' },
+      originalName: { type: String, default: '' },
+      fileType: { type: String, default: '' },
+      fileSize: { type: Number, default: 0 },
+      uploadedAt: { type: Date, default: null },
+    },
     emergencyContacts: [
       {
         name: {
