@@ -283,30 +283,42 @@ export const CreateRidePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass-card p-4 rounded-2xl border border-slate-800">
               <label className="block text-xs text-slate-400 mb-1">Date</label>
-              <div className="relative">
-                <Calendar className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="relative cursor-pointer">
+                <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <input
                   type="date"
                   name="date"
                   required
                   value={formData.date}
                   onChange={handleChange}
-                  className="w-full pl-9 pr-2 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                  onClick={(e) => {
+                    try {
+                      e.target.showPicker?.();
+                    } catch {}
+                  }}
+                  style={{ colorScheme: 'dark' }}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500 cursor-pointer"
                 />
               </div>
             </div>
 
             <div className="glass-card p-4 rounded-2xl border border-slate-800">
               <label className="block text-xs text-slate-400 mb-1">Departure Time</label>
-              <div className="relative">
-                <Clock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="relative cursor-pointer">
+                <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <input
                   type="time"
                   name="departureTime"
                   required
                   value={formData.departureTime}
                   onChange={handleChange}
-                  className="w-full pl-9 pr-2 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                  onClick={(e) => {
+                    try {
+                      e.target.showPicker?.();
+                    } catch {}
+                  }}
+                  style={{ colorScheme: 'dark' }}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500 cursor-pointer"
                 />
               </div>
             </div>
