@@ -8,9 +8,7 @@ import {
   ShieldCheck,
   RefreshCw,
   Info,
-  CheckCircle2,
   Calendar,
-  Layers,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -40,7 +38,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
       setData(res);
     } catch (err) {
       console.error('Failed to load personal analytics:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to fetch analytics');
+      setError(err?.message || 'Failed to fetch analytics');
     } finally {
       setLoading(false);
     }
@@ -60,14 +58,61 @@ export const PersonalAnalyticsCard = ({ user }) => {
     treesEquivalent: 0,
   };
 
-  const ratings = data?.ratingsBreakdown || {
-    punctuality: { average: 5.0, count: 0 },
-    safety: { average: 5.0, count: 0 },
-    behaviour: { average: 5.0, count: 0 },
-    cleanliness: { average: 5.0, count: 0 },
+  const rawRatings = data?.ratingsBreakdown || {};
+  const getCat = (cat) => {
+    if (typeof cat === 'object' && cat !== null) {
+      return {
+        average: Number(cat.average ?? 5.0),
+        count: Number(cat.count ?? 0),
+      };
+    }
+    return {
+      average: typeof cat === 'number' ? cat : 5.0,
+      count: 0,
+    };
   };
 
-  const monthlyTrends = data?.monthlyTrends || [];
+  const ratings = {
+    punctuality: getCat(rawRatings.punctuality),
+    safety: getCat(rawRatings.safety),
+    behaviour: getCat(rawRatings.behaviour),
+    cleanliness: getCat(rawRatings.cleanliness),
+  };
+
+  // Safe rating extraction: user.rating in DB is { average: 5.0, count: 0 }
+  const userRatingAvg =
+    typeof user?.rating === 'object' && user?.rating !== null
+      ? user?.rating?.average
+      : typeof user?.rating === 'number'
+      ? user?.rating
+      : 5.0;
+  const displayRating = Number(userRatingAvg || 5.0).toFixed(1);
+
+  const totalMoneySaved = Number(metrics.totalMoneySaved || 0);
+  const totalDistanceKm = Number(metrics.totalDistanceKm || 0);
+  const totalCo2SavedKg = Number(metrics.totalCo2SavedKg || 0);
+  const treesEquivalent = Number(metrics.treesEquivalent || 0);
+  const completedTrips = Number(metrics.completedTrips || 0);
+
+  const rawTrends = Array.isArray(data?.monthlyTrends) ? data.monthlyTrends : [];
+  const monthlyTrends =
+    rawTrends.length > 0
+      ? rawTrends.map((m) => ({
+          month: m.month || 'Current',
+          moneySaved: Number(m.moneySaved || 0),
+          distanceKm: Number(m.distanceKm || 0),
+          co2SavedKg: Number(m.co2SavedKg || 0),
+          trips: Number(m.trips || 0),
+        }))
+      : [
+          {
+            month: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+            moneySaved: 0,
+            distanceKm: 0,
+            co2SavedKg: 0,
+            trips: 0,
+          },
+        ];
 
   return (
     <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden">
@@ -125,7 +170,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
           </div>
           <div className="mt-3 flex items-baseline gap-1">
             <span className="text-2xl sm:text-3xl font-black text-white group-hover:text-emerald-400 transition">
-              ₹{metrics.totalMoneySaved.toLocaleString()}
+              ₹{totalMoneySaved.toLocaleString()}
             </span>
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
@@ -147,12 +192,12 @@ export const PersonalAnalyticsCard = ({ user }) => {
           </div>
           <div className="mt-3 flex items-baseline gap-1">
             <span className="text-2xl sm:text-3xl font-black text-white group-hover:text-brand-400 transition">
-              {metrics.totalDistanceKm}
+              {totalDistanceKm}
             </span>
             <span className="text-xs text-slate-400 font-bold">km</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
-            Across {metrics.completedTrips} completed {metrics.completedTrips === 1 ? 'trip' : 'trips'}
+            Across {completedTrips} completed {completedTrips === 1 ? 'trip' : 'trips'}
           </p>
         </div>
 
@@ -168,7 +213,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
           </div>
           <div className="mt-3 flex items-baseline gap-1">
             <span className="text-2xl sm:text-3xl font-black text-white group-hover:text-teal-400 transition">
-              {metrics.totalCo2SavedKg}
+              {totalCo2SavedKg}
             </span>
             <span className="text-xs text-slate-400 font-bold">kg</span>
           </div>
@@ -189,7 +234,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
           </div>
           <div className="mt-3 flex items-baseline gap-1">
             <span className="text-2xl sm:text-3xl font-black text-white group-hover:text-amber-400 transition">
-              {metrics.treesEquivalent}
+              {treesEquivalent}
             </span>
             <span className="text-xs text-slate-400 font-bold">🌲</span>
           </div>
@@ -239,7 +284,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
             </div>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-64 w-full" style={{ minHeight: '256px' }}>
             <ResponsiveContainer width="100%" height="100%">
               {activeTab === 'savings' ? (
                 <AreaChart data={monthlyTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -260,7 +305,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
                       color: '#ffffff',
                       boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)',
                     }}
-                    formatter={(value) => [`₹${value.toLocaleString()}`, 'Money Saved']}
+                    formatter={(value) => [`₹${Number(value || 0).toLocaleString()}`, 'Money Saved']}
                   />
                   <Area
                     type="monotone"
@@ -304,7 +349,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
               <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg">
                 <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                 <span className="text-xs font-black text-amber-300">
-                  {user?.rating ? user.rating.toFixed(1) : '5.0'}
+                  {displayRating}
                 </span>
               </div>
             </div>
@@ -314,22 +359,22 @@ export const PersonalAnalyticsCard = ({ user }) => {
 
             <div className="space-y-3.5 mt-5">
               {[
-                { label: 'Punctuality', value: ratings.punctuality?.average || 5.0, count: ratings.punctuality?.count || 0 },
-                { label: 'Safety', value: ratings.safety?.average || 5.0, count: ratings.safety?.count || 0 },
-                { label: 'Behaviour', value: ratings.behaviour?.average || 5.0, count: ratings.behaviour?.count || 0 },
-                { label: 'Cleanliness', value: ratings.cleanliness?.average || 5.0, count: ratings.cleanliness?.count || 0 },
+                { label: 'Punctuality', val: ratings.punctuality.average, count: ratings.punctuality.count },
+                { label: 'Safety', val: ratings.safety.average, count: ratings.safety.count },
+                { label: 'Behaviour', val: ratings.behaviour.average, count: ratings.behaviour.count },
+                { label: 'Cleanliness', val: ratings.cleanliness.average, count: ratings.cleanliness.count },
               ].map((item) => (
                 <div key={item.label}>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-slate-300 font-medium">{item.label}</span>
                     <span className="text-amber-400 font-bold">
-                      {Number(item.value).toFixed(1)} <span className="text-slate-500 font-normal">({item.count})</span>
+                      {item.val.toFixed(1)} <span className="text-slate-500 font-normal">({item.count})</span>
                     </span>
                   </div>
                   <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div
                       className="bg-gradient-to-r from-amber-500 to-emerald-400 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (Number(item.value) / 5) * 100)}%` }}
+                      style={{ width: `${Math.min(100, (item.val / 5) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -342,7 +387,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Verified Rating Score
             </span>
             <span className="text-slate-500">
-              {metrics.completedTrips} total {metrics.completedTrips === 1 ? 'trip' : 'trips'}
+              {completedTrips} total {completedTrips === 1 ? 'trip' : 'trips'}
             </span>
           </div>
         </div>

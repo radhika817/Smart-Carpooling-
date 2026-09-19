@@ -136,7 +136,7 @@ export const AdminAnalyticsPage = () => {
           </div>
           <div className="mt-4 flex items-baseline gap-1.5">
             <span className="text-3xl font-black text-white group-hover:text-brand-400 transition">
-              {overview.platformTotalDistanceKm.toLocaleString()}
+              {Number(overview?.platformTotalDistanceKm || 0).toLocaleString()}
             </span>
             <span className="text-xs text-slate-400 font-bold">km</span>
           </div>
@@ -158,7 +158,7 @@ export const AdminAnalyticsPage = () => {
           </div>
           <div className="mt-4 flex items-baseline gap-1">
             <span className="text-3xl font-black text-white group-hover:text-emerald-400 transition">
-              ₹{overview.platformTotalSavings.toLocaleString()}
+              ₹{Number(overview?.platformTotalSavings || 0).toLocaleString()}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
@@ -179,12 +179,12 @@ export const AdminAnalyticsPage = () => {
           </div>
           <div className="mt-4 flex items-baseline gap-1.5">
             <span className="text-3xl font-black text-white group-hover:text-teal-400 transition">
-              {overview.platformTotalCo2Kg.toLocaleString()}
+              {Number(overview?.platformTotalCo2Kg || 0).toLocaleString()}
             </span>
             <span className="text-xs text-slate-400 font-bold">kg</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            {(overview.platformTotalCo2Kg / 1000).toFixed(2)} metric tons avoided
+            {(Number(overview?.platformTotalCo2Kg || 0) / 1000).toFixed(2)} metric tons avoided
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export const AdminAnalyticsPage = () => {
           </div>
           <div className="mt-4 flex items-baseline gap-1.5">
             <span className="text-3xl font-black text-white group-hover:text-amber-400 transition">
-              {overview.platformTreesSaved.toLocaleString()}
+              {Number(overview?.platformTreesSaved || 0).toLocaleString()}
             </span>
             <span className="text-xs text-slate-400 font-bold">🌲</span>
           </div>

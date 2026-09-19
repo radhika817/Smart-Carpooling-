@@ -25,6 +25,7 @@ import {
 import { SafetySettingsCard } from '../components/safety/SafetySettingsCard';
 import { RateRideModal } from '../components/safety/RateRideModal';
 import { PersonalAnalyticsCard } from '../components/analytics/PersonalAnalyticsCard';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -163,7 +164,9 @@ export const DashboardPage = () => {
       )}
 
       {/* Phase 7 Personal Impact & Commute Analytics */}
-      <PersonalAnalyticsCard user={user} />
+      <ErrorBoundary>
+        <PersonalAnalyticsCard user={user} />
+      </ErrorBoundary>
 
       {/* Driver Section: Offered Rides */}
       {isDriver && (
