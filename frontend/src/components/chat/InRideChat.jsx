@@ -140,18 +140,21 @@ export const InRideChat = ({ rideId, currentUser, isDriver, socket }) => {
       </div>
 
       {/* Input Bar */}
-      <form onSubmit={handleSendMessage} className="p-3 bg-slate-900/60 border-t border-slate-800 flex gap-2">
+      <form onSubmit={handleSendMessage} className="p-3 bg-slate-900/90 border-t border-slate-800 flex gap-2">
         <input
+          id="in-ride-chat-input"
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Type a message to ride members..."
-          className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+          autoComplete="off"
+          style={{ color: '#ffffff', backgroundColor: '#0f172a' }}
+          className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 caret-brand-400 font-medium transition-all shadow-inner"
         />
         <button
           type="submit"
           disabled={!inputText.trim()}
-          className="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 active:scale-95 text-slate-950 font-bold transition disabled:opacity-40 disabled:pointer-events-none"
+          className="px-3.5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 active:scale-95 text-slate-950 font-bold transition disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center"
         >
           <Send className="w-4 h-4" />
         </button>

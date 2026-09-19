@@ -8,6 +8,15 @@
   body {
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   }
+
+  /* Ensure all inputs and textareas have crisp white visible text on dark theme */
+  input, textarea, select {
+    color: #f8fafc;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #94a3b8;
+  }
 }
 
 /* Glassmorphism custom classes */
