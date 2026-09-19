@@ -11,6 +11,7 @@ import { SearchRidesPage } from './pages/SearchRidesPage';
 import { VehiclesPage } from './pages/VehiclesPage';
 import { CreateRidePage } from './pages/CreateRidePage';
 import { LiveRidePage } from './pages/LiveRidePage';
+import { PublicTrackingPage } from './pages/PublicTrackingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ export function App() {
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
               <Route path="search" element={<SearchRidesPage />} />
+              <Route path="track/:shareToken" element={<PublicTrackingPage />} />
               <Route
                 path="vehicles"
                 element={

@@ -22,6 +22,8 @@ import {
   ArrowRight,
   Radio,
 } from 'lucide-react';
+import { SafetySettingsCard } from '../components/safety/SafetySettingsCard';
+import { RateRideModal } from '../components/safety/RateRideModal';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -32,6 +34,7 @@ export const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [activeRating, setActiveRating] = useState(null);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -258,6 +261,20 @@ export const DashboardPage = () => {
                         <CheckCheck className="w-3.5 h-3.5" /> Complete
                       </button>
                     )}
+
+                    {ride.status === 'COMPLETED' && (
+                      <button
+                        onClick={() =>
+                          setActiveRating({
+                            rideId: ride._id,
+                            targetUser: { name: 'Ride Passenger', role: 'passenger' },
+                          })
+                        }
+                        className="py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center justify-center gap-1 transition"
+                      >
+                        <Star className="w-3.5 h-3.5 fill-amber-400" /> Rate Passenger
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -349,6 +366,21 @@ export const DashboardPage = () => {
                         Cancel
                       </button>
                     )}
+
+                    {(b.status === 'COMPLETED' || b.ride?.status === 'COMPLETED') && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveRating({
+                            rideId: b.ride?._id || b.ride,
+                            targetUser: b.ride?.driver || { name: 'Driver', role: 'driver' },
+                          })
+                        }
+                        className="py-1 px-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-semibold text-xs border border-amber-500/20 flex items-center gap-1 transition"
+                      >
+                        <Star className="w-3 h-3 fill-amber-400" /> Rate Driver
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -356,6 +388,18 @@ export const DashboardPage = () => {
           </div>
         )}
       </div>
+
+      {/* Phase 6 Safety & Trust Section */}
+      <SafetySettingsCard currentUser={user} onUpdate={loadDashboardData} />
+
+      {/* Post-Ride Rating Modal */}
+      <RateRideModal
+        isOpen={!!activeRating}
+        onClose={() => setActiveRating(null)}
+        rideId={activeRating?.rideId}
+        targetUser={activeRating?.targetUser}
+        onSuccess={loadDashboardData}
+      />
     </div>
   );
 };

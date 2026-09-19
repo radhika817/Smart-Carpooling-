@@ -21,7 +21,11 @@ import {
   Phone,
   Radio,
   ArrowLeft,
+  Star,
 } from 'lucide-react';
+import { SosAlertModal } from '../components/safety/SosAlertModal';
+import { ShareTrackingModal } from '../components/safety/ShareTrackingModal';
+import { RateRideModal } from '../components/safety/RateRideModal';
 
 // Custom Vehicle Pin SVG for Live Map
 const carIconSvg = `
@@ -72,6 +76,7 @@ export const LiveRidePage = () => {
   const [etaMinutes, setEtaMinutes] = useState(null);
   const [rideStatus, setRideStatus] = useState('CONFIRMED');
   const [statusNotification, setStatusNotification] = useState('');
+  const [showRateModal, setShowRateModal] = useState(false);
 
   // Simulation controls (for Driver)
   const [isSimulating, setIsSimulating] = useState(false);
@@ -157,6 +162,9 @@ export const LiveRidePage = () => {
         setRideStatus(statusData.status);
         setStatusNotification(statusData.message || `Ride status updated to ${statusData.status}`);
         setTimeout(() => setStatusNotification(''), 6000);
+        if (statusData.status === 'COMPLETED') {
+          setShowRateModal(true);
+        }
       }
     });
 
@@ -308,6 +316,9 @@ export const LiveRidePage = () => {
     try {
       await rideService.updateRideStatus(rideId, newStatus, msg);
       setRideStatus(newStatus);
+      if (newStatus === 'COMPLETED') {
+        setShowRateModal(true);
+      }
     } catch (err) {
       alert(err.message || 'Failed to update status');
     }
@@ -361,8 +372,8 @@ export const LiveRidePage = () => {
           </div>
         </div>
 
-        {/* Status Pill Badge */}
-        <div className="flex items-center gap-2">
+        {/* Status Pill Badge & Safety Actions */}
+        <div className="flex flex-wrap items-center gap-2">
           <span
             className={`px-3.5 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1.5 shadow-sm ${
               rideStatus === 'IN_PROGRESS'
@@ -380,6 +391,28 @@ export const LiveRidePage = () => {
           <span className="text-xs text-slate-400 font-semibold px-2 py-1 bg-slate-900 rounded-lg border border-slate-800">
             {isDriver ? 'Driver View' : 'Passenger View'}
           </span>
+
+          {/* Share Live Tracking Modal Button */}
+          <ShareTrackingModal rideId={rideId} />
+
+          {/* Emergency SOS Button */}
+          <SosAlertModal
+            rideId={rideId}
+            socket={socket}
+            isRideActive={rideStatus === 'DRIVER_ARRIVING' || rideStatus === 'IN_PROGRESS'}
+            userRole={isDriver ? 'driver' : 'passenger'}
+          />
+
+          {rideStatus === 'COMPLETED' && (
+            <button
+              type="button"
+              onClick={() => setShowRateModal(true)}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1.5 transition active:scale-95"
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400" />
+              <span>Rate Ride</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -543,6 +576,15 @@ export const LiveRidePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Post-Ride Mutual Rating Modal */}
+      <RateRideModal
+        isOpen={showRateModal}
+        onClose={() => setShowRateModal(false)}
+        rideId={rideId}
+        targetUser={isDriver ? { name: 'Ride Passenger', role: 'passenger' } : ride?.driver}
+        onSuccess={() => {}}
+      />
     </div>
   );
 };
