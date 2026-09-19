@@ -6,7 +6,7 @@ export const createVehicleSchema = z.object({
   registrationNumber: z.string().min(2, 'Registration number is required'),
   type: z.enum(['sedan', 'hatchback', 'suv', 'bike', 'other']).default('sedan'),
   seats: z.number().int().min(1, 'At least 1 seat required').max(8, 'Maximum 8 seats allowed').default(4),
-  image: z.string().url().optional(),
+  image: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().url().optional()),
 });
 
 export const updateVehicleSchema = z.object({
@@ -14,7 +14,7 @@ export const updateVehicleSchema = z.object({
   registrationNumber: z.string().min(2).optional(),
   type: z.enum(['sedan', 'hatchback', 'suv', 'bike', 'other']).optional(),
   seats: z.number().int().min(1).max(8).optional(),
-  image: z.string().url().optional(),
+  image: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().url().optional()),
 });
 
 export const createVehicle = async (req, res, next) => {

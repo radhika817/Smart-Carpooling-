@@ -47,7 +47,11 @@ export const VehiclesPage = () => {
     setSuccess('');
 
     try {
-      await vehicleService.createVehicle(formData);
+      const payload = { ...formData };
+      if (!payload.image || !payload.image.trim()) {
+        delete payload.image;
+      }
+      await vehicleService.createVehicle(payload);
       setSuccess('Vehicle registered successfully!');
       setShowAddModal(false);
       setFormData({
