@@ -265,6 +265,17 @@ cd frontend
 npm run build
 ```
 
+### Pre-Configured Demo Accounts:
+The backend automatically provisions these verified test accounts on startup for fast UI testing:
+
+| Role | Email | Password | Pre-Configured Features |
+| :--- | :--- | :--- | :--- |
+| **Demo Passenger** | `demo.passenger@smartride.edu` | `DemoPass123!` | Verified email, phone, college org, ID |
+| **Demo Driver** | `demo.driver@smartride.edu` | `DemoPass123!` | Verified + Pre-registered *Tata Nexon EV* vehicle |
+| **Demo Admin** | `demo.admin@smartride.edu` | `DemoPass123!` | Full operations console & safety oversight privilege |
+
+*(You can also use the 1-click **Quick Demo Fill** buttons on the `/login` page to populate these credentials automatically).*
+
 ---
 
 ## 🐛 Common Troubleshooting

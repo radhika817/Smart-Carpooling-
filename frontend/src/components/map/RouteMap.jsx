@@ -62,20 +62,20 @@ export const RouteMap = ({
       return;
     }
 
-    // Add Start Marker
+    // Add Start Marker (Forest Emerald)
     if (hasStart) {
       const [startLng, startLat] = startLocation.coordinates;
       const startMarker = L.marker([startLat, startLng], {
-        icon: createColoredIcon('#10b981', 'Pickup'),
+        icon: createColoredIcon('#059669', 'Pickup'),
       }).bindPopup(`<strong>Pickup:</strong><br/>${startLocation.address || 'Start Location'}`);
       markersGroup.addLayer(startMarker);
     }
 
-    // Add Destination Marker
+    // Add Destination Marker (Sunrise Amber)
     if (hasDest) {
       const [destLng, destLat] = destination.coordinates;
       const destMarker = L.marker([destLat, destLng], {
-        icon: createColoredIcon('#0284c7', 'Drop-off'),
+        icon: createColoredIcon('#EA580C', 'Drop-off'),
       }).bindPopup(`<strong>Drop-off:</strong><br/>${destination.address || 'Destination'}`);
       markersGroup.addLayer(destMarker);
     }
@@ -97,8 +97,8 @@ export const RouteMap = ({
           // Draw Glowing Outer Line
           const glowLine = L.polyline(routeData.coordinates, {
             color: '#10b981',
-            weight: 8,
-            opacity: 0.35,
+            weight: 7,
+            opacity: 0.25,
             lineCap: 'round',
           });
 
@@ -106,7 +106,7 @@ export const RouteMap = ({
           const mainLine = L.polyline(routeData.coordinates, {
             color: '#059669',
             weight: 4,
-            opacity: 0.95,
+            opacity: 0.9,
             lineCap: 'round',
           });
 
@@ -137,7 +137,7 @@ export const RouteMap = ({
   };
 
   return (
-    <div className={`relative w-full rounded-2xl overflow-hidden border border-slate-800 ${className}`}>
+    <div className={`relative w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm ${className}`}>
       {/* Map Canvas */}
       <div ref={mapContainerRef} style={{ height, width: '100%' }} className="z-10" />
 
@@ -145,7 +145,7 @@ export const RouteMap = ({
       <button
         type="button"
         onClick={handleRecenter}
-        className="absolute top-3 right-3 z-20 p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 shadow-lg backdrop-blur-md transition"
+        className="absolute top-3 right-3 z-20 p-2 rounded-xl bg-white/95 hover:bg-white text-slate-700 hover:text-slate-900 border border-slate-200 shadow-sm backdrop-blur-md transition"
         title="Fit map to route"
       >
         <Maximize2 className="w-4 h-4" />
@@ -153,21 +153,21 @@ export const RouteMap = ({
 
       {/* Route Distance & Travel Time Floating Badge */}
       {routeStats && (
-        <div className="absolute bottom-3 left-3 right-3 sm:right-auto z-20 px-4 py-2.5 rounded-2xl bg-slate-950/90 border border-slate-800 shadow-2xl backdrop-blur-md flex items-center gap-4 text-xs text-white">
-          <div className="flex items-center gap-1.5 font-bold">
-            <Navigation className="w-4 h-4 text-emerald-400" />
+        <div className="absolute bottom-3 left-3 right-3 sm:right-auto z-20 px-4 py-2 rounded-xl bg-white/95 border border-slate-200 shadow-md backdrop-blur-md flex items-center gap-3 text-xs text-slate-800">
+          <div className="flex items-center gap-1.5 font-bold text-emerald-800">
+            <Navigation className="w-4 h-4 text-emerald-600" />
             <span>{routeStats.distanceKm} km</span>
-            <span className="text-[10px] text-slate-400 font-normal">driving</span>
+            <span className="text-[11px] text-slate-500 font-normal">driving</span>
           </div>
 
-          <div className="h-3 w-px bg-slate-800" />
+          <div className="h-3 w-px bg-slate-200" />
 
-          <div className="flex items-center gap-1.5 font-semibold text-slate-300">
-            <Clock className="w-4 h-4 text-brand-400" />
+          <div className="flex items-center gap-1.5 font-bold text-sunrise-700">
+            <Clock className="w-4 h-4 text-sunrise-600" />
             <span>~{routeStats.durationMin} mins</span>
           </div>
 
-          {loadingRoute && <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-400 ml-auto" />}
+          {loadingRoute && <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600 ml-auto" />}
         </div>
       )}
     </div>

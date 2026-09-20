@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, MessageSquare, Award, CheckCircle, X, Shield } from 'lucide-react';
+import { Star, CheckCircle, X } from 'lucide-react';
 import { reviewService } from '../../services/reviewService';
 
 export const RateRideModal = ({
@@ -22,10 +22,10 @@ export const RateRideModal = ({
   if (!isOpen) return null;
 
   const categories = [
-    { key: 'overall', label: 'Overall Experience', value: overall, setter: setOverall, desc: 'Your general satisfaction with this trip' },
+    { key: 'overall', label: 'Overall experience', value: overall, setter: setOverall, desc: 'Your general satisfaction with this trip' },
     { key: 'punctuality', label: 'Punctuality', value: punctuality, setter: setPunctuality, desc: 'On-time arrival at pickup / departure' },
-    { key: 'safety', label: 'Safety & Driving', value: safety, setter: setSafety, desc: 'Smooth, cautious, and secure commute' },
-    { key: 'behaviour', label: 'Behaviour & Courtesy', value: behaviour, setter: setBehaviour, desc: 'Politeness and pleasant interaction' },
+    { key: 'safety', label: 'Safety & driving', value: safety, setter: setSafety, desc: 'Smooth, cautious, and secure commute' },
+    { key: 'behaviour', label: 'Behaviour & courtesy', value: behaviour, setter: setBehaviour, desc: 'Politeness and pleasant interaction' },
     { key: 'cleanliness', label: 'Cleanliness', value: cleanliness, setter: setCleanliness, desc: 'Vehicle and commute tidiness' },
   ];
 
@@ -59,17 +59,17 @@ export const RateRideModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-5 text-slate-100 my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-elevated p-6 space-y-5 text-slate-900 my-8">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Star className="w-6 h-6 fill-amber-400" />
+            <div className="w-11 h-11 rounded-xl bg-sunrise-50 border border-sunrise-200/80 flex items-center justify-center text-sunrise-600">
+              <Star className="w-6 h-6 fill-sunrise-500 text-sunrise-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Rate Your Ride Experience</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="text-lg font-bold text-slate-900">Rate your ride experience</h3>
+              <p className="text-xs text-slate-500">
                 Reviewing <strong>{targetUser?.name || 'Ride Member'}</strong> ({targetUser?.role || 'member'})
               </p>
             </div>
@@ -77,7 +77,7 @@ export const RateRideModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -85,29 +85,29 @@ export const RateRideModal = ({
 
         {submitted ? (
           <div className="py-10 text-center space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
               <CheckCircle className="w-8 h-8" />
             </div>
-            <h4 className="text-base font-bold text-white">Thank you for rating!</h4>
-            <p className="text-xs text-slate-400">
+            <h4 className="text-base font-bold text-slate-900">Thank you for rating!</h4>
+            <p className="text-xs text-slate-500 max-w-xs mx-auto">
               Your feedback has updated the member's profile score and helps keep the campus community safe.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
                 {error}
               </div>
             )}
 
             {/* 5 Categories Star Ratings */}
-            <div className="space-y-3 p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
               {categories.map((cat) => (
-                <div key={cat.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2.5 border-b border-slate-800/60 last:border-b-0 last:pb-0">
+                <div key={cat.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2.5 border-b border-slate-200/80 last:border-b-0 last:pb-0">
                   <div>
-                    <span className="text-xs font-semibold text-slate-200 block">{cat.label}</span>
-                    <span className="text-[10px] text-slate-500">{cat.desc}</span>
+                    <span className="text-xs font-semibold text-slate-800 block">{cat.label}</span>
+                    <span className="text-[11px] text-slate-500">{cat.desc}</span>
                   </div>
 
                   <div className="flex items-center gap-1 mt-1 sm:mt-0">
@@ -121,13 +121,13 @@ export const RateRideModal = ({
                         <Star
                           className={`w-4 h-4 ${
                             star <= cat.value
-                              ? 'text-amber-400 fill-amber-400'
-                              : 'text-slate-700'
+                              ? 'text-sunrise-500 fill-sunrise-500'
+                              : 'text-slate-300'
                           }`}
                         />
                       </button>
                     ))}
-                    <span className="ml-1.5 text-xs font-bold text-amber-400 w-4 text-right">
+                    <span className="ml-1.5 text-xs font-bold text-sunrise-800 w-4 text-right">
                       {cat.value}
                     </span>
                   </div>
@@ -137,8 +137,8 @@ export const RateRideModal = ({
 
             {/* Feedback Comment */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Written Feedback (Optional)
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Written feedback (optional)
               </label>
               <textarea
                 value={comment}
@@ -146,7 +146,7 @@ export const RateRideModal = ({
                 placeholder="Share specific details about this commute..."
                 rows={2}
                 maxLength={500}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition resize-none"
+                className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 shadow-xs transition resize-none"
               />
             </div>
 
@@ -154,9 +154,9 @@ export const RateRideModal = ({
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-500 to-teal-500 hover:from-brand-400 hover:to-teal-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-500/20 transition active:scale-95 disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm shadow-sm transition active:scale-95 disabled:opacity-50"
             >
-              {submitting ? 'Saving Review...' : 'Submit Rating'}
+              {submitting ? 'Saving review...' : 'Submit rating'}
             </button>
           </form>
         )}

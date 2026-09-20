@@ -34,7 +34,6 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
     setErrorMessage('');
 
     try {
-      // Get device geolocation if available
       let coordinates = [0, 0];
       if (navigator.geolocation) {
         try {
@@ -43,7 +42,7 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
           });
           coordinates = [pos.coords.longitude, pos.coords.latitude];
         } catch {
-          // Fallback to default coordinates if denied or timed out
+          // Fallback to default coordinates
         }
       }
 
@@ -67,7 +66,7 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
         type="button"
         id="sos-emergency-trigger-btn"
         onClick={() => setIsOpen(true)}
-        className="relative group px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-red-600/30 transition active:scale-95 border border-red-400/30"
+        className="relative group px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-red-600/20 transition active:scale-95 border border-red-500/30"
         title="Emergency SOS Alert"
       >
         <span className="relative flex h-2.5 w-2.5">
@@ -75,27 +74,24 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
         </span>
         <ShieldAlert className="w-4 h-4 text-white" />
-        <span>SOS Alert</span>
+        <span>SOS alert</span>
       </button>
 
       {/* SOS Modal Dialog */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md rounded-3xl bg-slate-900 border-2 border-red-500/50 shadow-2xl p-6 space-y-5 text-slate-100 overflow-hidden">
-            {/* Ambient Red Glow */}
-            <div className="absolute -top-20 -right-20 w-48 h-48 bg-red-500/20 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md rounded-2xl bg-white border-2 border-red-500/60 shadow-elevated p-6 space-y-5 text-slate-900 overflow-hidden">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shadow-inner">
+                <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-red-600">
                   <ShieldAlert className="w-7 h-7 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-white tracking-wide flex items-center gap-2">
-                    Emergency Safety SOS
+                  <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                    Emergency safety SOS
                   </h3>
-                  <p className="text-xs text-red-300/80 font-medium">
+                  <p className="text-xs text-red-700 font-medium">
                     Immediate emergency dispatch & alert system
                   </p>
                 </div>
@@ -106,7 +102,7 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
                   setIsOpen(false);
                   setErrorMessage('');
                 }}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -114,15 +110,15 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
 
             {/* If there is an incoming alert from another ride member */}
             {incomingAlert && (
-              <div className="p-4 rounded-2xl bg-red-500/20 border border-red-500/50 text-red-200 text-xs space-y-2">
-                <div className="flex items-center gap-2 font-bold text-red-100 text-sm">
-                  <AlertTriangle className="w-4 h-4 text-red-400" />
-                  EMERGENCY ALERT TRIGGERED
+              <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-red-900 text-sm">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
+                  Emergency alert triggered
                 </div>
                 <p>
                   <strong>{incomingAlert.triggeredBy?.name}</strong> ({incomingAlert.triggeredBy?.role}) has activated the SOS button on this ride.
                 </p>
-                <p className="text-[11px] text-red-300">
+                <p className="text-[11px] text-red-700">
                   Time: {new Date(incomingAlert.timestamp).toLocaleTimeString()}
                 </p>
               </div>
@@ -130,27 +126,27 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
 
             {/* SOS Trigger Confirmation & Status */}
             {sosSuccess ? (
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs space-y-2.5">
-                <div className="flex items-center gap-2 font-bold text-emerald-200 text-sm">
-                  <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  SOS Alert Broadcasted!
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs space-y-2.5">
+                <div className="flex items-center gap-2 font-bold text-emerald-900 text-sm">
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  SOS alert broadcasted!
                 </div>
                 <p>
                   Live GPS telemetry has been flagged as high-priority emergency. Notifications have been dispatched to your saved emergency contacts.
                 </p>
-                <div className="text-[11px] text-slate-300 font-mono bg-slate-950/60 p-2 rounded-xl border border-slate-800">
-                  Notified Contacts: {sosSuccess.notifiedContacts?.length || 0}
+                <div className="text-[11px] text-slate-700 font-mono bg-white p-2 rounded-lg border border-slate-200">
+                  Notified contacts: {sosSuccess.notifiedContacts?.length || 0}
                 </div>
               </div>
             ) : (
               !incomingAlert && (
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 space-y-2">
-                    <p className="font-semibold text-white flex items-center gap-1.5">
-                      <Radio className="w-4 h-4 text-red-400 animate-pulse" />
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
+                    <p className="font-semibold text-slate-900 flex items-center gap-1.5">
+                      <Radio className="w-4 h-4 text-red-600 animate-pulse" />
                       What happens when you trigger SOS:
                     </p>
-                    <ul className="list-disc list-inside space-y-1 text-slate-400 text-[11px]">
+                    <ul className="list-disc list-inside space-y-1 text-slate-600 text-[11px]">
                       <li>Broadcasts emergency alert to all ride members via WebSocket.</li>
                       <li>Sends SMS alerts with your live location to your emergency contacts.</li>
                       <li>Provides direct 1-tap phone dials to local emergency authorities.</li>
@@ -158,7 +154,7 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
                   </div>
 
                   {errorMessage && (
-                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
                       {errorMessage}
                     </div>
                   )}
@@ -167,13 +163,13 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
                     type="button"
                     disabled={isSubmitting || !isRideActive}
                     onClick={handleTriggerSos}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-red-600/40 transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm shadow-md transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
                   >
                     <ShieldAlert className="w-5 h-5" />
-                    {isSubmitting ? 'Dispatching Emergency Alert...' : 'Confirm & Activate SOS Now'}
+                    {isSubmitting ? 'Dispatching emergency alert...' : 'Confirm & activate SOS now'}
                   </button>
                   {!isRideActive && (
-                    <p className="text-[11px] text-center text-amber-400/80">
+                    <p className="text-[11px] text-center text-amber-800 font-medium">
                       Note: SOS can only be activated while the ride is in progress.
                     </p>
                   )}
@@ -181,35 +177,35 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
               )
             )}
 
-            {/* Quick Emergency Dial Links (Always accessible) */}
-            <div className="pt-2 border-t border-slate-800 space-y-2">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                Direct Emergency Call Helplines (India):
+            {/* Quick Emergency Dial Links */}
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <span className="text-xs font-semibold text-slate-700 block">
+                Direct emergency call helplines (India):
               </span>
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
                 <a
                   href="tel:112"
-                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition flex flex-col items-center gap-1 group"
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 transition flex flex-col items-center gap-1 group shadow-xs"
                 >
-                  <PhoneCall className="w-4 h-4 text-red-400 group-hover:scale-110 transition" />
-                  <span className="font-extrabold text-white text-sm">112</span>
-                  <span className="text-[9px] text-slate-400">Police / All</span>
+                  <PhoneCall className="w-4 h-4 text-red-600 group-hover:scale-110 transition" />
+                  <span className="font-extrabold text-slate-900 text-sm">112</span>
+                  <span className="text-[10px] text-slate-500 font-medium">Police / All</span>
                 </a>
                 <a
                   href="tel:108"
-                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition flex flex-col items-center gap-1 group"
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 transition flex flex-col items-center gap-1 group shadow-xs"
                 >
-                  <PhoneCall className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition" />
-                  <span className="font-extrabold text-white text-sm">108</span>
-                  <span className="text-[9px] text-slate-400">Ambulance</span>
+                  <PhoneCall className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition" />
+                  <span className="font-extrabold text-slate-900 text-sm">108</span>
+                  <span className="text-[10px] text-slate-500 font-medium">Ambulance</span>
                 </a>
                 <a
                   href="tel:1091"
-                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition flex flex-col items-center gap-1 group"
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 transition flex flex-col items-center gap-1 group shadow-xs"
                 >
-                  <PhoneCall className="w-4 h-4 text-amber-400 group-hover:scale-110 transition" />
-                  <span className="font-extrabold text-white text-sm">1091</span>
-                  <span className="text-[9px] text-slate-400">Women Safety</span>
+                  <PhoneCall className="w-4 h-4 text-sunrise-600 group-hover:scale-110 transition" />
+                  <span className="font-extrabold text-slate-900 text-sm">1091</span>
+                  <span className="text-[10px] text-slate-500 font-medium">Women safety</span>
                 </a>
               </div>
             </div>

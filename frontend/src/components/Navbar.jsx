@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, User, Menu, X, ShieldCheck, BarChart3, Users, ShieldAlert } from 'lucide-react';
+import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, Menu, X, ShieldCheck, BarChart3, Users } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -17,19 +17,19 @@ export const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform duration-200">
-              <Car className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-500 flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform duration-200">
+              <Car className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-300 bg-clip-text text-transparent">
+              <span className="text-xl font-extrabold tracking-tight text-slate-900">
                 SmartRide
               </span>
-              <span className="text-[10px] tracking-wider uppercase font-semibold text-brand-400 -mt-1">
+              <span className="text-[10px] tracking-wider font-bold text-brand-600 -mt-1">
                 Campus & Commute
               </span>
             </div>
@@ -39,39 +39,39 @@ export const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-1">
             <Link
               to="/search"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/search')
-                  ? 'bg-slate-800 text-brand-400 shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
               }`}
             >
-              <Compass className="w-4 h-4" />
-              <span>Find Ride</span>
+              <Compass className="w-4 h-4 text-emerald-600" />
+              <span>Find ride</span>
             </Link>
 
             {user?.role === 'driver' && (
               <>
                 <Link
                   to="/create-ride"
-                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive('/create-ride')
-                      ? 'bg-slate-800 text-brand-400 shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
                   }`}
                 >
-                  <PlusCircle className="w-4 h-4 text-emerald-400" />
-                  <span>Post Ride</span>
+                  <PlusCircle className="w-4 h-4 text-emerald-600" />
+                  <span>Post ride</span>
                 </Link>
 
                 <Link
                   to="/vehicles"
-                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive('/vehicles')
-                      ? 'bg-slate-800 text-brand-400 shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
                   }`}
                 >
-                  <Car className="w-4 h-4 text-amber-400" />
+                  <Car className="w-4 h-4 text-sunrise-600" />
                   <span>Vehicles</span>
                 </Link>
               </>
@@ -79,37 +79,37 @@ export const Navbar = () => {
 
             <Link
               to="/groups"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/groups') || location.pathname.startsWith('/groups/')
-                  ? 'bg-slate-800 text-brand-400 shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
               }`}
             >
-              <Users className="w-4 h-4 text-cyan-400" />
+              <Users className="w-4 h-4 text-emerald-600" />
               <span>Groups</span>
             </Link>
 
             <Link
               to="/dashboard"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/dashboard')
-                  ? 'bg-slate-800 text-brand-400 shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4" />
+              <LayoutDashboard className="w-4 h-4 text-slate-600" />
               <span>Dashboard</span>
             </Link>
 
             <Link
               to="/admin/analytics"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/admin/analytics')
-                  ? 'bg-slate-800 text-brand-400 shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
               }`}
             >
-              <BarChart3 className="w-4 h-4 text-emerald-400" />
+              <BarChart3 className="w-4 h-4 text-emerald-600" />
               <span>Analytics</span>
             </Link>
 
@@ -118,12 +118,12 @@ export const Navbar = () => {
                 to="/admin"
                 className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
                   isActive('/admin')
-                    ? 'bg-purple-600/20 text-purple-300 border border-purple-500/40'
-                    : 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
+                    ? 'bg-purple-50 text-purple-800 border border-purple-200 shadow-xs'
+                    : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50'
                 }`}
               >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Admin Console</span>
+                <ShieldCheck className="w-4 h-4 text-purple-600" />
+                <span>Admin console</span>
               </Link>
             )}
           </nav>
@@ -131,19 +131,19 @@ export const Navbar = () => {
           {/* Desktop Auth Controls */}
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3 pl-3 pr-2 py-1.5 rounded-full bg-slate-900/90 border border-slate-800">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-teal-600 flex items-center justify-center text-slate-950 font-bold text-xs">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 pl-3 pr-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 shadow-xs">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-teal-600 flex items-center justify-center text-white font-bold text-xs shadow-xs">
                     {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
                   <div className="flex flex-col text-left">
-                    <span className="text-xs font-semibold text-white leading-tight">
+                    <span className="text-xs font-semibold text-slate-900 leading-tight">
                       {user?.name}
                     </span>
-                    <span className="text-[10px] text-slate-400 capitalize flex items-center gap-1">
+                    <span className="text-[10px] text-slate-500 capitalize flex items-center gap-1">
                       {user?.role}
                       {user?.organization && (
-                        <span className="text-slate-500">• {user.organization}</span>
+                        <span className="text-slate-400">• {user.organization}</span>
                       )}
                     </span>
                   </div>
@@ -152,7 +152,7 @@ export const Navbar = () => {
                 <button
                   onClick={handleLogout}
                   title="Sign Out"
-                  className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -161,15 +161,15 @@ export const Navbar = () => {
               <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
                 >
-                  Sign In
+                  Sign in
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-brand-500 to-teal-500 text-slate-950 hover:from-brand-400 hover:to-teal-400 shadow-lg shadow-brand-500/25 transition-all duration-200 hover:shadow-glow"
+                  className="px-4 py-2 rounded-xl text-sm font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-sm hover:shadow transition-all duration-200"
                 >
-                  Get Started
+                  Get started
                 </Link>
               </div>
             )}
@@ -179,7 +179,7 @@ export const Navbar = () => {
           <div className="flex md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none"
+              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -189,14 +189,14 @@ export const Navbar = () => {
 
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-950/95 px-4 pt-3 pb-5 space-y-3">
+        <div className="md:hidden border-t border-slate-200 bg-white/98 px-4 pt-3 pb-5 space-y-2 shadow-elevated">
           <Link
             to="/search"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <Compass className="w-4 h-4" />
-            <span>Find Ride</span>
+            <Compass className="w-4 h-4 text-emerald-600" />
+            <span>Find ride</span>
           </Link>
 
           {user?.role === 'driver' && (
@@ -204,17 +204,17 @@ export const Navbar = () => {
               <Link
                 to="/create-ride"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
               >
-                <PlusCircle className="w-4 h-4 text-emerald-400" />
-                <span>Post Ride</span>
+                <PlusCircle className="w-4 h-4 text-emerald-600" />
+                <span>Post ride</span>
               </Link>
               <Link
                 to="/vehicles"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
               >
-                <Car className="w-4 h-4 text-amber-400" />
+                <Car className="w-4 h-4 text-sunrise-600" />
                 <span>Vehicles</span>
               </Link>
             </>
@@ -223,72 +223,72 @@ export const Navbar = () => {
           <Link
             to="/groups"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <Users className="w-4 h-4 text-cyan-400" />
-            <span>Carpool Groups</span>
+            <Users className="w-4 h-4 text-emerald-600" />
+            <span>Carpool groups</span>
           </Link>
 
           <Link
             to="/dashboard"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <LayoutDashboard className="w-4 h-4" />
+            <LayoutDashboard className="w-4 h-4 text-slate-600" />
             <span>Dashboard</span>
           </Link>
 
           <Link
             to="/admin/analytics"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-200 hover:text-brand-400 font-medium text-sm"
+            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <BarChart3 className="w-4 h-4 text-emerald-400" />
-            <span>Platform Analytics</span>
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <span>Platform analytics</span>
           </Link>
 
           {user?.role === 'admin' && (
             <Link
               to="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2 py-2 text-purple-400 hover:text-purple-300 font-bold text-sm"
+              className="flex items-center space-x-2 py-2 text-purple-700 hover:text-purple-900 font-bold text-sm"
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>Admin Console</span>
+              <ShieldCheck className="w-4 h-4 text-purple-600" />
+              <span>Admin console</span>
             </Link>
           )}
 
           {isAuthenticated ? (
-            <div className="pt-3 border-t border-slate-800 space-y-3">
-              <div className="text-xs text-slate-400">
-                Signed in as <strong className="text-white">{user?.name}</strong> ({user?.role})
+            <div className="pt-3 border-t border-slate-200 space-y-3">
+              <div className="text-xs text-slate-600">
+                Signed in as <strong className="text-slate-900">{user?.name}</strong> ({user?.role})
               </div>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="w-full flex items-center justify-center space-x-2 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-medium"
+                className="w-full flex items-center justify-center space-x-2 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-sm font-semibold hover:bg-rose-100 transition"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
+                <span>Sign out</span>
               </button>
             </div>
           ) : (
-            <div className="pt-3 border-t border-slate-800 flex flex-col space-y-2">
+            <div className="pt-3 border-t border-slate-200 flex flex-col space-y-2">
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-sm font-medium text-slate-200 bg-slate-800 rounded-lg"
+                className="w-full py-2.5 text-center text-sm font-semibold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition"
               >
-                Sign In
+                Sign in
               </Link>
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-sm font-bold text-slate-950 bg-brand-500 rounded-lg"
+                className="w-full py-2.5 text-center text-sm font-bold text-white bg-brand-500 rounded-xl hover:bg-brand-600 shadow-sm transition"
               >
-                Get Started
+                Get started
               </Link>
             </div>
           )}

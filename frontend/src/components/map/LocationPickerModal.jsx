@@ -8,7 +8,7 @@ export const LocationPickerModal = ({
   onClose,
   onConfirm,
   initialCoordinates = [73.8567, 18.5204], // Pune default [lng, lat]
-  title = 'Pick Location on Map',
+  title = 'Pick location on map',
 }) => {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -47,7 +47,7 @@ export const LocationPickerModal = ({
         }).addTo(map);
 
         const marker = L.marker([initLat, initLng], {
-          icon: createColoredIcon('#10b981'),
+          icon: createColoredIcon('#059669'),
           draggable: true,
         }).addTo(map);
 
@@ -122,44 +122,44 @@ export const LocationPickerModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm">
+      <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full overflow-hidden shadow-elevated flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white leading-tight">{title}</h3>
-              <p className="text-[11px] text-slate-400">Click map or drag the pin to pinpoint location</p>
+              <h3 className="text-base font-bold text-slate-900 leading-tight">{title}</h3>
+              <p className="text-xs text-slate-500">Click map or drag the pin to pinpoint location</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Search inside Modal */}
-        <div className="p-3 bg-slate-950/70 border-b border-slate-800 relative">
+        <div className="p-3 bg-slate-50/80 border-b border-slate-200 relative">
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search place name in map..."
+                placeholder="Search place or landmark in map..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-brand-500"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 shadow-xs"
               />
             </div>
             <button
               type="submit"
               disabled={searching}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition disabled:opacity-50"
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-white transition disabled:opacity-50 shadow-xs"
             >
               {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
             </button>
@@ -167,15 +167,15 @@ export const LocationPickerModal = ({
 
           {/* Search Dropdown in Modal */}
           {searchResults.length > 0 && (
-            <div className="absolute left-3 right-3 mt-1.5 z-20 max-h-48 overflow-y-auto rounded-xl bg-slate-900 border border-slate-800 shadow-2xl divide-y divide-slate-800/60">
+            <div className="absolute left-3 right-3 mt-1.5 z-20 max-h-48 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-elevated divide-y divide-slate-100">
               {searchResults.map((res, i) => (
                 <div
                   key={i}
                   onClick={() => selectSearchResult(res)}
-                  className="p-2.5 hover:bg-slate-800 cursor-pointer text-xs transition"
+                  className="p-2.5 hover:bg-emerald-50/50 cursor-pointer text-xs transition"
                 >
-                  <p className="font-bold text-white">{res.shortName}</p>
-                  <p className="text-slate-400 line-clamp-1 text-[11px]">{res.address}</p>
+                  <p className="font-semibold text-slate-900">{res.shortName}</p>
+                  <p className="text-slate-500 line-clamp-1 text-[11px]">{res.address}</p>
                 </div>
               ))}
             </div>
@@ -188,15 +188,15 @@ export const LocationPickerModal = ({
         </div>
 
         {/* Selected Location Bar & Actions */}
-        <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 border-t border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex-1 pr-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              Selected Address
+            <span className="text-xs font-semibold text-slate-700 block">
+              Selected address
             </span>
-            <p className="text-xs text-slate-200 font-medium line-clamp-2 mt-0.5">
+            <p className="text-xs text-slate-900 font-medium line-clamp-2 mt-0.5">
               {loadingAddress ? 'Reverse geocoding coordinates...' : selectedAddress}
             </p>
-            <span className="text-[10px] font-mono text-brand-400/80 mt-0.5 block">
+            <span className="text-[11px] font-mono text-emerald-700 mt-0.5 block">
               [{selectedCoords[0]?.toFixed(4)}, {selectedCoords[1]?.toFixed(4)}]
             </span>
           </div>
@@ -204,15 +204,15 @@ export const LocationPickerModal = ({
           <div className="flex gap-2 self-end sm:self-auto">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition"
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200 transition shadow-xs"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
-              className="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 text-xs font-bold shadow-md transition flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5"
             >
-              <Check className="w-4 h-4 stroke-[3]" /> Confirm Pin
+              <Check className="w-4 h-4 stroke-[3]" /> Confirm pin
             </button>
           </div>
         </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
-  ShieldAlert,
   UserCheck,
   Phone,
   Plus,
@@ -10,7 +9,6 @@ import {
   Mail,
   CheckCircle2,
   Star,
-  Sparkles,
   UploadCloud,
   FileText,
   Lock,
@@ -101,115 +99,72 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
   };
 
   const loadContacts = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await userService.getEmergencyContacts();
-      const list = res?.contacts || res?.data?.contacts || (Array.isArray(res) ? res : []);
+      const data = await userService.getEmergencyContacts();
+      const list = Array.isArray(data) ? data : data?.contacts || [];
       setContacts(list);
     } catch (err) {
-      console.warn('Could not load contacts:', err.message);
+      console.error('Failed to load emergency contacts:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleToggleVerification = async (key) => {
+    const updated = !verification[key];
+    setVerification((prev) => ({ ...prev, [key]: updated }));
+
+    try {
+      await userService.updateVerification({ [key]: updated });
+      await refreshUser();
+      if (onUpdate) onUpdate();
+    } catch (err) {
+      console.error('Failed to update verification status:', err);
+      setVerification((prev) => ({ ...prev, [key]: !updated }));
+    }
+  };
+
   const handleAddContact = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !phoneNum.trim()) return;
+    if (!name || !phoneNum) return;
 
     setSubmitting(true);
     setErrorMsg('');
+
     try {
       const res = await userService.addEmergencyContact({
         name: name.trim(),
         phone: phoneNum.trim(),
         relationship,
       });
-      const list = res?.contacts || res?.data?.contacts || (Array.isArray(res) ? res : []);
+      const list = Array.isArray(res) ? res : res?.contacts || [];
       setContacts(list);
       setName('');
       setPhoneNum('');
       setShowAddContact(false);
+      await refreshUser();
       if (onUpdate) onUpdate();
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to add emergency contact');
+      setErrorMsg(err.message || 'Failed to add contact');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteContact = async (contactId) => {
-    if (!window.confirm('Remove this emergency contact?')) return;
     try {
       const res = await userService.deleteEmergencyContact(contactId);
-      const list = res?.contacts || res?.data?.contacts || (Array.isArray(res) ? res : []);
+      const list = Array.isArray(res) ? res : res?.contacts || [];
       setContacts(list);
+      await refreshUser();
       if (onUpdate) onUpdate();
     } catch (err) {
-      alert('Could not remove contact: ' + err.message);
+      console.error('Failed to delete contact:', err);
     }
   };
 
-  const handleToggleVerification = async (key) => {
-    const nextVal = !verification[key];
-    try {
-      const res = await userService.updateVerification({ [key]: nextVal });
-      const freshStatus = res?.data?.verificationStatus || res?.verificationStatus;
-      if (freshStatus) {
-        setVerification({
-          email: Boolean(freshStatus.email),
-          phone: Boolean(freshStatus.phone),
-          organization: Boolean(freshStatus.organization),
-          govtId: Boolean(freshStatus.govtId),
-        });
-      } else {
-        setVerification((prev) => ({ ...prev, [key]: nextVal }));
-      }
-      if (refreshUser) refreshUser();
-      if (onUpdate) onUpdate();
-    } catch (err) {
-      console.warn('Could not update verification:', err.message);
-      loadLiveProfile();
-    }
-  };
-
-  // Handle File Selection for ID Upload
-  const handleFileSelect = (file) => {
-    setUploadError('');
-    setUploadSuccess('');
-    if (!file) return;
-
-    // Validate type: images or pdf
-    const isValidType = file.type.startsWith('image/') || file.type === 'application/pdf';
-    if (!isValidType) {
-      setUploadError('Please select a valid image file (PNG, JPG, WEBP) or PDF document.');
-      return;
-    }
-
-    // Validate size: max 10MB
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError('File size exceeds 10MB limit.');
-      return;
-    }
-
-    setSelectedFile(file);
-
-    if (file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    } else {
-      setPreviewUrl(''); // PDF
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelect(e.dataTransfer.files[0]);
-    }
-  };
-
+  // Drag and drop handlers
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -220,50 +175,70 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
     setIsDragging(false);
   };
 
-  const handleUploadIdDocument = async () => {
-    if (!selectedFile) {
-      setUploadError('Please choose or drop an identity document first');
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (file) => {
+    setUploadError('');
+    setUploadSuccess('');
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError('Please select a valid image (PNG, JPG, WEBP) or PDF document.');
       return;
     }
 
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('File exceeds 10MB maximum upload limit.');
+      return;
+    }
+
+    setSelectedFile(file);
+
+    if (file.type.startsWith('image/')) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+    } else {
+      setPreviewUrl('');
+    }
+  };
+
+  const handleUploadIdDocument = async () => {
+    if (!selectedFile) return;
+
     setUploadingId(true);
     setUploadError('');
-    setUploadProgress(10);
+    setUploadSuccess('');
+    setUploadProgress(20);
+
+    const formData = new FormData();
+    formData.append('document', selectedFile);
 
     try {
-      const res = await userService.uploadIdDocument(selectedFile, (progress) => {
-        setUploadProgress(progress);
-      });
-
+      setUploadProgress(50);
+      const res = await userService.uploadIdDocument(formData);
       setUploadProgress(100);
-      setUploadSuccess('ID document uploaded and verified successfully!');
 
-      const freshStatus = res?.data?.verificationStatus || res?.verificationStatus;
-      if (freshStatus) {
-        setVerification({
-          email: Boolean(freshStatus.email),
-          phone: Boolean(freshStatus.phone),
-          organization: Boolean(freshStatus.organization),
-          govtId: Boolean(freshStatus.govtId),
-        });
-      } else {
-        setVerification((prev) => ({ ...prev, govtId: true }));
-      }
+      setUploadSuccess('Document uploaded securely and verified!');
+      setVerification((prev) => ({ ...prev, govtId: true }));
 
-      if (refreshUser) refreshUser();
+      await refreshUser();
+      await loadLiveProfile();
+      if (onUpdate) onUpdate();
 
-      // Clean up after 1.5 seconds
       setTimeout(() => {
         setShowUploadModal(false);
         setSelectedFile(null);
         setPreviewUrl('');
-        setUploadProgress(0);
         setUploadSuccess('');
-        if (onUpdate) onUpdate();
-      }, 1500);
+      }, 1200);
     } catch (err) {
-      console.error('ID upload failed:', err);
-      setUploadError(err.message || 'Failed to upload identity document');
+      setUploadError(err.message || 'Failed to upload document.');
     } finally {
       setUploadingId(false);
     }
@@ -278,8 +253,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
       const url = URL.createObjectURL(blob);
       setViewingBlobUrl(url);
     } catch (err) {
-      console.error('Failed to retrieve private document:', err);
-      setViewerError(err.message || 'Could not retrieve private document');
+      setViewerError(err.message || 'Failed to load document');
     } finally {
       setLoadingViewer(false);
     }
@@ -294,57 +268,57 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
   };
 
   return (
-    <div className="glass-card p-6 rounded-3xl border border-slate-800 space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              Safety, Trust & Verification
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              Safety, trust & verification
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Community protection, emergency dispatch network & verified identity
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Safety Network Active</span>
+          <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-semibold flex items-center gap-1.5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Safety network active</span>
           </span>
         </div>
       </div>
 
       {/* 3-Column Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         {/* Left Column: Verification Badges */}
         <div className="space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <UserCheck className="w-4 h-4 text-brand-400" />
-            Verification Credentials
+          <h4 className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+            <UserCheck className="w-4 h-4 text-emerald-600" />
+            Verification credentials
           </h4>
 
           <div className="space-y-2.5">
             {/* Email Verification */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
-                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <Mail className="w-4 h-4 text-slate-500 shrink-0" />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-white block">Email Address</span>
-                  <span className="text-[10px] text-slate-500 block truncate">{currentUser?.email || 'Not provided'}</span>
+                  <span className="text-xs font-semibold text-slate-900 block">Email address</span>
+                  <span className="text-[11px] text-slate-500 block truncate">{currentUser?.email || 'Not provided'}</span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleToggleVerification('email')}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition flex items-center gap-1 shrink-0 ${
                   verification.email
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 {verification.email ? '✓ Verified' : 'Verify'}
@@ -352,21 +326,21 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             </div>
 
             {/* Phone Verification */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
-                <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                <Phone className="w-4 h-4 text-slate-500 shrink-0" />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-white block">Phone Number</span>
-                  <span className="text-[10px] text-slate-500 block truncate">{currentUser?.phone || 'Not provided'}</span>
+                  <span className="text-xs font-semibold text-slate-900 block">Phone number</span>
+                  <span className="text-[11px] text-slate-500 block truncate">{currentUser?.phone || 'Not provided'}</span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleToggleVerification('phone')}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition flex items-center gap-1 shrink-0 ${
                   verification.phone
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 {verification.phone ? '✓ Verified' : 'Verify'}
@@ -374,12 +348,12 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             </div>
 
             {/* Workplace / College Verification */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
-                <Building className="w-4 h-4 text-slate-400 shrink-0" />
+                <Building className="w-4 h-4 text-slate-500 shrink-0" />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-white block">Campus / Workplace</span>
-                  <span className="text-[10px] text-slate-500 block truncate">
+                  <span className="text-xs font-semibold text-slate-900 block">Campus / workplace</span>
+                  <span className="text-[11px] text-slate-500 block truncate">
                     {currentUser?.organization || 'Registered Organization'}
                   </span>
                 </div>
@@ -387,10 +361,10 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
               <button
                 type="button"
                 onClick={() => handleToggleVerification('organization')}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition flex items-center gap-1 shrink-0 ${
                   verification.organization
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 {verification.organization ? '✓ Verified' : 'Verify'}
@@ -398,12 +372,12 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             </div>
 
             {/* Real Government / Student ID Upload Item */}
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
-                <ShieldCheck className={`w-4 h-4 shrink-0 ${verification.govtId ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <ShieldCheck className={`w-4 h-4 shrink-0 ${verification.govtId ? 'text-emerald-600' : 'text-slate-400'}`} />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-white block">Government / Student ID</span>
-                  <span className="text-[10px] text-slate-500 block truncate">
+                  <span className="text-xs font-semibold text-slate-900 block">Government / Student ID</span>
+                  <span className="text-[11px] text-slate-500 block truncate">
                     {verification.govtId
                       ? 'Encrypted in private vault'
                       : 'Upload photo identity document'}
@@ -411,28 +385,28 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {verification.govtId ? (
                   <>
                     <button
                       type="button"
                       onClick={handleOpenViewer}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1"
+                      className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition flex items-center gap-1 shadow-xs"
                       title="View private document"
                     >
-                      <Eye className="w-3 h-3 text-slate-400" />
+                      <Eye className="w-3 h-3 text-slate-500" />
                       <span>View</span>
                     </button>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                       ✓ Verified
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowUploadModal(true)}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1"
+                      className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition flex items-center gap-1 shadow-xs"
                       title="Replace existing ID"
                     >
-                      <RefreshCw className="w-2.5 h-2.5 text-slate-400" />
+                      <RefreshCw className="w-2.5 h-2.5 text-slate-500" />
                       <span>Replace</span>
                     </button>
                   </>
@@ -440,9 +414,9 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   <button
                     type="button"
                     onClick={() => setShowUploadModal(true)}
-                    className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-500 hover:bg-brand-400 text-slate-950 shadow transition flex items-center gap-1 shrink-0"
+                    className="px-3 py-1 rounded-full text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-xs transition flex items-center gap-1 shrink-0"
                   >
-                    <UploadCloud className="w-3 h-3 stroke-[2.5]" />
+                    <UploadCloud className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span>Upload ID</span>
                   </button>
                 )}
@@ -454,32 +428,32 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
         {/* Middle Column: Emergency Contacts Network */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Phone className="w-4 h-4 text-red-400" />
-              Emergency Contacts ({contacts.length}/5)
+            <h4 className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+              <Phone className="w-4 h-4 text-rose-600" />
+              Emergency contacts ({contacts.length}/5)
             </h4>
             {contacts.length < 5 && (
               <button
                 type="button"
                 onClick={() => setShowAddContact(!showAddContact)}
-                className="text-xs text-brand-400 font-bold hover:underline flex items-center gap-1"
+                className="text-xs text-emerald-700 font-bold hover:underline flex items-center gap-1"
               >
-                <Plus className="w-3.5 h-3.5" /> Add
+                <Plus className="w-3.5 h-3.5" /> Add contact
               </button>
             )}
           </div>
 
           {/* Add Contact Inline Form */}
           {showAddContact && (
-            <form onSubmit={handleAddContact} className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
-              <div className="text-xs font-bold text-white">Add Trusted Contact</div>
-              {errorMsg && <div className="text-[10px] text-red-400">{errorMsg}</div>}
+            <form onSubmit={handleAddContact} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5 shadow-xs">
+              <div className="text-xs font-bold text-slate-900">Add trusted contact</div>
+              {errorMsg && <div className="text-[11px] text-rose-600">{errorMsg}</div>}
               <input
                 type="text"
                 placeholder="Contact Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                className="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
                 required
               />
               <div className="flex gap-2">
@@ -488,13 +462,13 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   placeholder="Phone Number"
                   value={phoneNum}
                   onChange={(e) => setPhoneNum(e.target.value)}
-                  className="flex-1 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
                   required
                 />
                 <select
                   value={relationship}
                   onChange={(e) => setRelationship(e.target.value)}
-                  className="px-2 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500"
+                  className="px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="Parent">Parent</option>
                   <option value="Spouse">Spouse</option>
@@ -508,16 +482,16 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                 <button
                   type="button"
                   onClick={() => setShowAddContact(false)}
-                  className="px-2.5 py-1 rounded-lg text-xs text-slate-400 hover:text-white"
+                  className="px-2.5 py-1 rounded-lg text-xs text-slate-600 hover:text-slate-900"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-3 py-1 rounded-lg text-xs font-bold bg-brand-500 text-slate-950 hover:bg-brand-400 transition"
+                  className="px-3 py-1 rounded-lg text-xs font-bold bg-brand-500 text-white hover:bg-brand-600 transition shadow-xs"
                 >
-                  {submitting ? 'Saving...' : 'Save Contact'}
+                  {submitting ? 'Saving...' : 'Save contact'}
                 </button>
               </div>
             </form>
@@ -526,10 +500,10 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
           {/* Contact List */}
           <div className="space-y-2">
             {contacts.length === 0 ? (
-              <div className="p-4 rounded-2xl bg-slate-950/40 border border-slate-800 text-center">
-                <Phone className="w-5 h-5 text-slate-600 mx-auto mb-1" />
-                <p className="text-xs text-slate-400">No emergency contacts saved</p>
-                <p className="text-[10px] text-slate-500">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <Phone className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                <p className="text-xs text-slate-700 font-medium">No emergency contacts saved</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">
                   Add family or friends who will receive automated SOS alerts with live coordinates.
                 </p>
               </div>
@@ -537,20 +511,20 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
               contacts.map((c) => (
                 <div
                   key={c._id || c.phone}
-                  className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between"
+                  className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-xs"
                 >
                   <div>
-                    <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <div className="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
                       <span>{c.name}</span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-normal">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-medium">
                         {c.relationship}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-400">{c.phone}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{c.phone}</div>
                   </div>
                   <button
                     onClick={() => handleDeleteContact(c._id)}
-                    className="p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition"
+                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
                     title="Remove contact"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -564,16 +538,16 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
         {/* Right Column: Mutual Trust & Category Breakdown */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              Mutual Trust Rating
+            <h4 className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+              <Star className="w-4 h-4 text-sunrise-500 fill-sunrise-500" />
+              Mutual trust rating
             </h4>
-            <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
+            <span className="text-xs font-bold text-sunrise-800 flex items-center gap-1">
               ★ {currentUser?.rating?.average?.toFixed(1) || '5.0'}
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 shadow-xs">
             {[
               { label: 'Punctuality', val: ratingsBreakdown.punctuality?.average || 5.0 },
               { label: 'Safety', val: ratingsBreakdown.safety?.average || 5.0 },
@@ -581,13 +555,13 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
               { label: 'Cleanliness', val: ratingsBreakdown.cleanliness?.average || 5.0 },
             ].map((metric) => (
               <div key={metric.label} className="space-y-1">
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">{metric.label}</span>
-                  <span className="text-amber-400 font-bold">{metric.val.toFixed(1)} / 5</span>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-600 font-medium">{metric.label}</span>
+                  <span className="text-sunrise-800 font-bold">{metric.val.toFixed(1)} / 5</span>
                 </div>
-                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                   <div
-                    className="bg-amber-400 h-1.5 rounded-full transition-all duration-300"
+                    className="bg-sunrise-500 h-1.5 rounded-full transition-all duration-300"
                     style={{ width: `${(metric.val / 5) * 100}%` }}
                   />
                 </div>
@@ -597,19 +571,19 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
         </div>
       </div>
 
-      {/* ID Upload Modal with File Picker & Drag-and-Drop */}
+      {/* ID Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-elevated p-6 space-y-5">
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center">
                   <UploadCloud className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Upload Government / Student ID</h3>
-                  <p className="text-xs text-slate-400">Official photo identity verification</p>
+                  <h3 className="text-base font-bold text-slate-900">Upload Government / Student ID</h3>
+                  <p className="text-xs text-slate-500">Official photo identity verification</p>
                 </div>
               </div>
               <button
@@ -620,21 +594,21 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   setUploadError('');
                 }}
                 disabled={uploadingId}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition disabled:opacity-50"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition disabled:opacity-50"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {uploadError && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{uploadError}</span>
               </div>
             )}
 
             {uploadSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                 <span>{uploadSuccess}</span>
               </div>
@@ -648,8 +622,8 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
               onClick={() => fileInputRef.current?.click()}
               className={`p-6 rounded-2xl border-2 border-dashed transition flex flex-col items-center justify-center text-center cursor-pointer ${
                 isDragging
-                  ? 'border-brand-400 bg-brand-500/10'
-                  : 'border-slate-700 hover:border-slate-500 bg-slate-950/40'
+                  ? 'border-emerald-500 bg-emerald-50/50'
+                  : 'border-slate-300 hover:border-emerald-500 bg-slate-50/50'
               }`}
             >
               <input
@@ -669,30 +643,30 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   <img
                     src={previewUrl}
                     alt="ID Preview"
-                    className="max-h-48 rounded-xl object-contain border border-slate-700 mx-auto shadow-md"
+                    className="max-h-48 rounded-xl object-contain border border-slate-200 mx-auto shadow-md"
                   />
-                  <div className="text-xs font-semibold text-slate-200">{selectedFile?.name}</div>
-                  <span className="text-[10px] text-slate-400">
+                  <div className="text-xs font-semibold text-slate-800">{selectedFile?.name}</div>
+                  <span className="text-[11px] text-slate-500">
                     {(selectedFile?.size / 1024).toFixed(1)} KB · Click or drag another file to change
                   </span>
                 </div>
               ) : selectedFile ? (
                 <div className="space-y-2">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-800 text-brand-400 flex items-center justify-center mx-auto border border-slate-700">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-100">
                     <FileText className="w-7 h-7" />
                   </div>
-                  <div className="text-xs font-semibold text-white">{selectedFile.name}</div>
-                  <span className="text-[10px] text-slate-400">
+                  <div className="text-xs font-semibold text-slate-900">{selectedFile.name}</div>
+                  <span className="text-[11px] text-slate-500">
                     {(selectedFile.size / 1024).toFixed(1)} KB · PDF Document
                   </span>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center mx-auto">
                     <UploadCloud className="w-6 h-6" />
                   </div>
-                  <div className="text-sm font-semibold text-white">
-                    Drop your ID document here, or <span className="text-brand-400 underline">browse</span>
+                  <div className="text-sm font-semibold text-slate-900">
+                    Drop your ID document here, or <span className="text-emerald-700 underline">browse</span>
                   </div>
                   <p className="text-xs text-slate-500">
                     Supports Passport, Driver's License, Aadhaar, or College Student ID (PNG, JPG, WEBP, PDF up to 10MB)
@@ -704,27 +678,27 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
             {/* Upload Progress */}
             {uploadingId && (
               <div className="space-y-1.5">
-                <div className="flex justify-between text-xs text-slate-400">
+                <div className="flex justify-between text-xs text-slate-600">
                   <span>Uploading to private vault...</span>
-                  <span className="font-bold text-brand-400">{uploadProgress}%</span>
+                  <span className="font-bold text-emerald-700">{uploadProgress}%</span>
                 </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-brand-500 to-teal-400 h-2 rounded-full transition-all duration-300"
+                    className="bg-brand-500 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
               </div>
             )}
 
-            {/* Security & Privacy Guarantee */}
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-start gap-3">
-              <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 mt-0.5">
+            {/* Security Guarantee */}
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+              <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800 mt-0.5">
                 <Lock className="w-4 h-4" />
               </div>
               <div className="text-xs">
-                <span className="font-bold text-slate-200 block">Private & Authenticated Storage</span>
-                <span className="text-slate-400 text-[11px] leading-relaxed">
+                <span className="font-bold text-slate-900 block">Private & authenticated storage</span>
+                <span className="text-slate-600 text-[11px] leading-relaxed">
                   Your identity document is stored securely in an encrypted vault. Only you and authorized admins
                   can access it; it is never publicly exposed or shared with other co-riders.
                 </span>
@@ -741,7 +715,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   setPreviewUrl('');
                 }}
                 disabled={uploadingId}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition"
               >
                 Cancel
               </button>
@@ -749,7 +723,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                 type="button"
                 onClick={handleUploadIdDocument}
                 disabled={!selectedFile || uploadingId}
-                className="px-5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-brand-500 hover:bg-brand-400 transition shadow disabled:opacity-50 flex items-center gap-1.5"
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 transition shadow-sm disabled:opacity-50 flex items-center gap-1.5"
               >
                 {uploadingId ? (
                   <>
@@ -759,7 +733,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                 ) : (
                   <>
                     <FileCheck className="w-4 h-4" />
-                    <span>Confirm & Verify ID</span>
+                    <span>Confirm & verify ID</span>
                   </>
                 )}
               </button>
@@ -770,53 +744,53 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
 
       {/* Private Document Secure Viewer Modal */}
       {showViewerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-elevated p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
                   <Lock className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Private Identity Document</h3>
-                  <span className="text-xs text-slate-400">Authenticated viewer · Protected</span>
+                  <h3 className="text-base font-bold text-slate-900">Private identity document</h3>
+                  <span className="text-xs text-slate-500">Authenticated viewer · Protected</span>
                 </div>
               </div>
               <button
                 onClick={handleCloseViewer}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {loadingViewer ? (
-              <div className="py-16 text-center text-slate-400 flex flex-col items-center gap-2">
-                <RefreshCw className="w-6 h-6 animate-spin text-brand-400" />
+              <div className="py-16 text-center text-slate-500 flex flex-col items-center gap-2">
+                <RefreshCw className="w-6 h-6 animate-spin text-emerald-600" />
                 <span className="text-xs font-semibold">Retrieving encrypted document...</span>
               </div>
             ) : viewerError ? (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
                 {viewerError}
               </div>
             ) : viewingBlobUrl ? (
-              <div className="p-2 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center max-h-[60vh] overflow-auto">
+              <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center max-h-[60vh] overflow-auto">
                 <img
                   src={viewingBlobUrl}
                   alt="Verified ID Document"
-                  className="max-h-[55vh] rounded-xl object-contain shadow-lg"
+                  className="max-h-[55vh] rounded-lg object-contain shadow-sm"
                 />
               </div>
             ) : (
-              <div className="py-8 text-center text-slate-400 text-xs">Document ready to download</div>
+              <div className="py-8 text-center text-slate-500 text-xs">Document ready to download</div>
             )}
 
-            <div className="flex items-center justify-between pt-2 text-[11px] text-slate-500">
+            <div className="flex items-center justify-between pt-2 text-xs text-slate-500">
               <span>Verified Identity · Private Delivery</span>
               <button
                 type="button"
                 onClick={handleCloseViewer}
-                className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition"
+                className="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold transition"
               >
                 Close
               </button>

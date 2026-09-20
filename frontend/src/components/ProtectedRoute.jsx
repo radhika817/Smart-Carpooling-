@@ -10,8 +10,8 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-10 h-10 animate-spin text-brand-400" />
-        <p className="text-slate-400 text-sm font-medium">Verifying authentication...</p>
+        <Loader2 className="w-10 h-10 animate-spin text-brand-600" />
+        <p className="text-slate-600 text-sm font-medium">Verifying authentication...</p>
       </div>
     );
   }
@@ -23,11 +23,11 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4 text-center px-4">
-        <div className="p-4 rounded-full bg-red-500/10 border border-red-500/20 text-red-400">
+        <div className="p-4 rounded-full bg-red-50 border border-red-200 text-red-600 shadow-xs">
           <span className="text-2xl">🛑</span>
         </div>
-        <h2 className="text-2xl font-bold text-white">Access Denied</h2>
-        <p className="text-slate-400 max-w-md">
+        <h2 className="text-2xl font-bold text-slate-900">Access Denied</h2>
+        <p className="text-slate-600 max-w-md">
           This area is restricted to {allowedRoles.join(' or ')} accounts. Your account role is {user?.role}.
         </p>
       </div>

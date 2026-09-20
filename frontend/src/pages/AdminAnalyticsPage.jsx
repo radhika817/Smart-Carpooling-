@@ -1,27 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
-  TrendingUp,
   Leaf,
   Users,
-  Car,
   CheckCircle2,
-  XCircle,
-  Clock,
-  ShieldCheck,
   RefreshCw,
   Navigation,
   Layers,
   Building2,
-  ArrowRight,
   Award,
-  Sparkles,
   PieChart as PieIcon,
   BarChart3,
   Calendar,
+  ShieldCheck,
 } from 'lucide-react';
 import {
-  AreaChart,
-  Area,
   BarChart,
   Bar,
   PieChart,
@@ -80,19 +72,19 @@ export const AdminAnalyticsPage = () => {
   const statusDistribution = data?.statusDistribution || [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full space-y-8">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400">
+            <div className="w-12 h-12 rounded-2xl bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-700 shadow-xs">
               <BarChart3 className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Platform Analytics & ESG Impact
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight font-display">
+                Platform analytics & ESG impact
               </h1>
-              <p className="text-sm text-slate-400 mt-0.5">
+              <p className="text-sm text-slate-500 mt-0.5">
                 Macro metrics, verified corridor density, and cumulative environmental impact
               </p>
             </div>
@@ -100,23 +92,23 @@ export const AdminAnalyticsPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>Live Data Sync</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-50 border border-brand-200 text-xs font-semibold text-brand-800">
+            <span className="w-2 h-2 rounded-full bg-brand-600 animate-ping" />
+            <span>Live data sync</span>
           </div>
           <button
             onClick={fetchAdminData}
             disabled={loading}
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2 disabled:opacity-50"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-200 transition flex items-center gap-2 shadow-xs disabled:opacity-50"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-700' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold shadow-xs">
           {error}
         </div>
       )}
@@ -124,21 +116,20 @@ export const AdminAnalyticsPage = () => {
       {/* Cumulative Impact Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Shared Distance */}
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Cumulative Shared Km
+            <span className="text-xs font-semibold text-slate-500">
+              Cumulative shared distance
             </span>
-            <div className="w-8 h-8 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
+            <div className="w-8 h-8 rounded-lg bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-700">
               <Navigation className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4 flex items-baseline gap-1.5">
-            <span className="text-3xl font-black text-white group-hover:text-brand-400 transition">
+            <span className="text-3xl font-extrabold text-slate-900 font-display">
               {Number(overview?.platformTotalDistanceKm || 0).toLocaleString()}
             </span>
-            <span className="text-xs text-slate-400 font-bold">km</span>
+            <span className="text-xs text-slate-500 font-bold">km</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Passenger-km shared on completed trips
@@ -146,42 +137,40 @@ export const AdminAnalyticsPage = () => {
         </div>
 
         {/* Platform Cumulative Savings */}
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Net Economic Value
+            <span className="text-xs font-semibold text-slate-500">
+              Net economic value
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-800 font-bold">
               ₹
             </div>
           </div>
           <div className="mt-4 flex items-baseline gap-1">
-            <span className="text-3xl font-black text-white group-hover:text-emerald-400 transition">
+            <span className="text-3xl font-extrabold text-slate-900 font-display">
               ₹{Number(overview?.platformTotalSavings || 0).toLocaleString()}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Savings + fuel recovery vs solo cabs
+            Savings & fuel recovery vs solo rides
           </p>
         </div>
 
         {/* CO2 Avoided */}
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              CO₂ Emissions Avoided
+            <span className="text-xs font-semibold text-slate-500">
+              CO₂ emissions avoided
             </span>
-            <div className="w-8 h-8 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
               <Leaf className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4 flex items-baseline gap-1.5">
-            <span className="text-3xl font-black text-white group-hover:text-teal-400 transition">
+            <span className="text-3xl font-extrabold text-slate-900 font-display">
               {Number(overview?.platformTotalCo2Kg || 0).toLocaleString()}
             </span>
-            <span className="text-xs text-slate-400 font-bold">kg</span>
+            <span className="text-xs text-slate-500 font-bold">kg</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             {(Number(overview?.platformTotalCo2Kg || 0) / 1000).toFixed(2)} metric tons avoided
@@ -189,21 +178,20 @@ export const AdminAnalyticsPage = () => {
         </div>
 
         {/* Mature Trees Equivalent */}
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Trees Saved Equivalent
+            <span className="text-xs font-semibold text-slate-500">
+              Trees saved equivalent
             </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-sunrise-50 border border-sunrise-200 flex items-center justify-center text-sunrise-800">
               <Award className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4 flex items-baseline gap-1.5">
-            <span className="text-3xl font-black text-white group-hover:text-amber-400 transition">
+            <span className="text-3xl font-extrabold text-slate-900 font-display">
               {Number(overview?.platformTreesSaved || 0).toLocaleString()}
             </span>
-            <span className="text-xs text-slate-400 font-bold">🌲</span>
+            <span className="text-xs text-slate-500 font-bold">trees</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Annual mature tree carbon offset
@@ -213,45 +201,45 @@ export const AdminAnalyticsPage = () => {
 
       {/* Secondary Row: Platform Demographics & Reliability */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-extrabold text-white">{overview.totalUsers}</div>
-            <div className="text-[11px] text-slate-400">
-              {overview.driverUsers} Drivers · {overview.passengerUsers} Passengers
+            <div className="text-lg font-bold text-slate-900">{overview.totalUsers}</div>
+            <div className="text-xs text-slate-500">
+              {overview.driverUsers} drivers · {overview.passengerUsers} passengers
             </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-extrabold text-white">{overview.verifiedOrgUsers}</div>
-            <div className="text-[11px] text-slate-400">Corporate & Org Verified</div>
+            <div className="text-lg font-bold text-slate-900">{overview.verifiedOrgUsers}</div>
+            <div className="text-xs text-slate-500">Corporate & org verified</div>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-extrabold text-white">{overview.completedRides}</div>
-            <div className="text-[11px] text-slate-400">Completed Carpools</div>
+            <div className="text-lg font-bold text-slate-900">{overview.completedRides}</div>
+            <div className="text-xs text-slate-500">Completed carpools</div>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-sunrise-50 border border-sunrise-200 text-sunrise-800">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-extrabold text-white">{overview.completionRate}%</div>
-            <div className="text-[11px] text-slate-400">Trip Fulfillment Rate</div>
+            <div className="text-lg font-bold text-slate-900">{overview.completionRate}%</div>
+            <div className="text-xs text-slate-500">Trip fulfillment rate</div>
           </div>
         </div>
       </div>
@@ -259,13 +247,13 @@ export const AdminAnalyticsPage = () => {
       {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Monthly Platform Trajectory (2 Cols) */}
-        <div className="lg:col-span-2 p-6 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-xl">
+        <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-brand-400" /> Platform Volume & Shared Km Growth
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-brand-700" /> Platform volume & shared distance growth
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Monthly trends of completed commuter trips and combined passenger distance
               </p>
             </div>
@@ -274,33 +262,33 @@ export const AdminAnalyticsPage = () => {
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyTrends} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderColor: '#334155',
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#E2E8F0',
                     borderRadius: '0.75rem',
-                    color: '#ffffff',
-                    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)',
+                    color: '#0F172A',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
-                <Bar dataKey="rides" name="Completed Rides" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="sharedKm" name="Shared Distance (km)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="rides" name="Completed rides" fill="#047857" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sharedKm" name="Shared distance (km)" fill="#2563EB" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Ride Status Distribution PieChart (1 Col) */}
-        <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-xl flex flex-col justify-between">
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <PieIcon className="w-4 h-4 text-purple-400" /> Ride Status Distribution
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <PieIcon className="w-4 h-4 text-indigo-700" /> Ride status distribution
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Breakdown of total scheduled carpool requests
             </p>
 
@@ -320,10 +308,11 @@ export const AdminAnalyticsPage = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#0f172a',
-                      borderColor: '#334155',
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#E2E8F0',
                       borderRadius: '0.75rem',
-                      color: '#ffffff',
+                      color: '#0F172A',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                     }}
                   />
                 </PieChart>
@@ -331,11 +320,11 @@ export const AdminAnalyticsPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-center">
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 text-center">
             {statusDistribution.map((item) => (
-              <div key={item.name} className="p-2 rounded-xl bg-slate-800/40 border border-slate-800">
-                <div className="text-xs font-bold text-white">{item.value}</div>
-                <div className="text-[10px] text-slate-400 flex items-center justify-center gap-1 mt-0.5">
+              <div key={item.name} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="text-xs font-bold text-slate-900">{item.value}</div>
+                <div className="text-[11px] text-slate-500 flex items-center justify-center gap-1 mt-0.5">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
                   <span>{item.name}</span>
                 </div>
@@ -346,20 +335,20 @@ export const AdminAnalyticsPage = () => {
       </div>
 
       {/* Top Corridors Section */}
-      <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-xl space-y-4">
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-400" /> Top Commuter Corridors
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-brand-700" /> Top commuter corridors
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Highest-frequency commute routes identified across completed rides
           </p>
         </div>
 
         {topCorridors.length === 0 ? (
-          <div className="p-8 text-center rounded-2xl bg-slate-800/20 border border-slate-800/60">
-            <Navigation className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-slate-300">No completed corridors yet</p>
+          <div className="p-8 text-center rounded-2xl bg-slate-50 border border-slate-200">
+            <Navigation className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-slate-800">No completed corridors yet</p>
             <p className="text-xs text-slate-500 mt-1">
               Top commute routes will rank here as commuters complete scheduled trips.
             </p>
@@ -369,21 +358,21 @@ export const AdminAnalyticsPage = () => {
             {topCorridors.map((corr, idx) => (
               <div
                 key={corr.corridor}
-                className="p-4 rounded-2xl bg-slate-800/40 border border-slate-800/80 hover:border-brand-500/30 transition flex flex-col justify-between"
+                className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-brand-300 hover:bg-white transition flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-                    <span className="font-bold text-brand-400">Rank #{idx + 1}</span>
+                  <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+                    <span className="font-bold text-brand-800">Rank #{idx + 1}</span>
                     <span>{corr.rides} completed {corr.rides === 1 ? 'ride' : 'rides'}</span>
                   </div>
-                  <div className="font-bold text-sm text-white flex items-center gap-2 break-words">
+                  <div className="font-semibold text-sm text-slate-900 flex items-center gap-2 break-words">
                     <span>{corr.corridor}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-500">
                   <span>{corr.passengers} passengers carpooled</span>
-                  <span className="font-bold text-emerald-400">{corr.distanceKm} km/trip</span>
+                  <span className="font-bold text-emerald-800">{corr.distanceKm} km/trip</span>
                 </div>
               </div>
             ))}

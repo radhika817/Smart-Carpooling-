@@ -45,14 +45,14 @@ const createVehicleIcon = () =>
   });
 
 const pickupIcon = L.divIcon({
-  html: `<div class="w-7 h-7 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-emerald-500/50">A</div>`,
+  html: `<div class="w-7 h-7 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white font-bold shadow-md">A</div>`,
   className: '',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
 });
 
 const dropoffIcon = L.divIcon({
-  html: `<div class="w-7 h-7 rounded-full bg-sky-500 border-2 border-slate-900 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-sky-500/50">B</div>`,
+  html: `<div class="w-7 h-7 rounded-full bg-sunrise-600 border-2 border-white flex items-center justify-center text-white font-bold shadow-md">B</div>`,
   className: '',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
@@ -351,22 +351,22 @@ export const LiveRidePage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-2xs transition"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-              <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-600 animate-ping" />
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
                 Live Commute Tracking & Chat
               </h1>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               {ride.startLocation?.address} → {ride.destination?.address}
             </p>
           </div>
@@ -375,20 +375,20 @@ export const LiveRidePage = () => {
         {/* Status Pill Badge & Safety Actions */}
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1.5 shadow-sm ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-2xs ${
               rideStatus === 'IN_PROGRESS'
-                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 animate-pulse'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300 animate-pulse'
                 : rideStatus === 'DRIVER_ARRIVING'
-                ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 animate-pulse'
+                ? 'bg-sunrise-50 text-sunrise-800 border-sunrise-300 animate-pulse'
                 : rideStatus === 'COMPLETED'
-                ? 'bg-blue-500/10 text-blue-300 border-blue-500/30'
-                : 'bg-brand-500/10 text-brand-300 border-brand-500/30'
+                ? 'bg-blue-50 text-blue-800 border-blue-300'
+                : 'bg-brand-50 text-brand-700 border-brand-300'
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
             {rideStatus.replace('_', ' ')}
           </span>
-          <span className="text-xs text-slate-400 font-semibold px-2 py-1 bg-slate-900 rounded-lg border border-slate-800">
+          <span className="text-xs text-slate-600 font-semibold px-2.5 py-1 bg-white rounded-lg border border-slate-200 shadow-2xs">
             {isDriver ? 'Driver View' : 'Passenger View'}
           </span>
 
@@ -407,10 +407,10 @@ export const LiveRidePage = () => {
             <button
               type="button"
               onClick={() => setShowRateModal(true)}
-              className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1.5 transition active:scale-95"
+              className="px-3 py-1.5 rounded-xl bg-sunrise-50 hover:bg-sunrise-100 text-sunrise-800 border border-sunrise-200 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
             >
-              <Star className="w-3.5 h-3.5 fill-amber-400" />
-              <span>Rate Ride</span>
+              <Star className="w-3.5 h-3.5 fill-sunrise-500 text-sunrise-500" />
+              <span>Rate ride</span>
             </button>
           )}
         </div>
@@ -418,8 +418,8 @@ export const LiveRidePage = () => {
 
       {/* Real-time Status Notification Toast */}
       {statusNotification && (
-        <div className="p-3.5 rounded-xl bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs flex items-center gap-2.5 animate-in fade-in slide-in-from-top duration-200">
-          <CheckCircle className="w-4 h-4 text-brand-400 flex-shrink-0" />
+        <div className="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 text-xs flex items-center gap-2.5 animate-in fade-in slide-in-from-top duration-200">
+          <CheckCircle className="w-4 h-4 text-brand-600 flex-shrink-0" />
           <span className="font-semibold">{statusNotification}</span>
         </div>
       )}
@@ -430,37 +430,37 @@ export const LiveRidePage = () => {
         <div className="lg:col-span-2 space-y-4 flex flex-col">
           {/* Floating HUD Telemetry Bar */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center flex-shrink-0">
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-sunrise-50 text-sunrise-700 border border-sunrise-200 flex items-center justify-center flex-shrink-0">
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Estimated ETA</span>
-                <span className="text-lg font-black text-white">
+                <span className="text-xs font-semibold text-slate-500 block">Estimated ETA</span>
+                <span className="text-lg font-black text-slate-900">
                   {etaMinutes !== null ? `${etaMinutes} mins` : 'Calculating...'}
                 </span>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center flex-shrink-0">
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center flex-shrink-0">
                 <Navigation className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Distance Remaining</span>
-                <span className="text-lg font-black text-white">
+                <span className="text-xs font-semibold text-slate-500 block">Distance remaining</span>
+                <span className="text-lg font-black text-slate-900">
                   {distanceRemaining !== null ? `${distanceRemaining} km` : 'En route'}
                 </span>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center flex-shrink-0">
                 <Car className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Speed / Vehicle</span>
-                <span className="text-lg font-black text-white">
+                <span className="text-xs font-semibold text-slate-500 block">Speed / Vehicle</span>
+                <span className="text-lg font-black text-slate-900">
                   {speed ? `${speed} km/h` : 'Moving'}
                 </span>
               </div>
@@ -468,25 +468,25 @@ export const LiveRidePage = () => {
           </div>
 
           {/* Interactive Leaflet Live Map */}
-          <div className="relative rounded-2xl overflow-hidden border border-slate-800 h-[480px] shadow-2xl bg-slate-950">
+          <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-[480px] shadow-sm bg-slate-100">
             <div ref={mapContainerRef} className="w-full h-full" />
 
             {/* Map Watermark & Attribution */}
-            <div className="absolute bottom-3 left-3 z-[1000] px-3 py-1 rounded-lg bg-slate-950/80 backdrop-blur border border-slate-800 text-[11px] text-slate-300 font-medium flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="absolute bottom-3 left-3 z-[1000] px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur border border-slate-200 text-xs text-slate-700 font-medium flex items-center gap-2 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-brand-600 animate-pulse" />
               Socket.IO GPS Telemetry Active
             </div>
           </div>
 
           {/* Driver Simulation & Lifecycle Action Panel (Only for Driver) */}
           {isDriver && (
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 shadow-lg">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                  <Compass className="w-4 h-4 text-brand-400" />
-                  Driver Live Controls & GPS Simulation
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Compass className="w-4 h-4 text-brand-600" />
+                  Driver live controls & GPS simulation
                 </span>
-                <span className="text-[11px] text-slate-400">Step {simIndex + 1} of {routeWaypoints.length}</span>
+                <span className="text-xs text-slate-500">Step {simIndex + 1} of {routeWaypoints.length}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-semibold">
@@ -496,40 +496,40 @@ export const LiveRidePage = () => {
                   onClick={toggleSimulation}
                   className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition ${
                     isSimulating
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                      : 'bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400'
+                      ? 'bg-sunrise-50 text-sunrise-800 border border-sunrise-300'
+                      : 'bg-brand-600 text-white font-semibold hover:bg-brand-700 shadow-sm'
                   }`}
                 >
                   {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                  {isSimulating ? 'Pause Simulation' : 'Start Simulation'}
+                  {isSimulating ? 'Pause simulation' : 'Start simulation'}
                 </button>
 
                 {/* Step Forward Button */}
                 <button
                   type="button"
                   onClick={() => stepSimulation(simIndex + 1)}
-                  className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center gap-1.5 transition border border-slate-700"
+                  className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center gap-1.5 transition border border-slate-200"
                 >
                   <SkipForward className="w-3.5 h-3.5" />
-                  Step Forward
+                  Step forward
                 </button>
 
                 {/* Mark Arriving Button */}
                 <button
                   type="button"
                   onClick={() => handleStatusChange('DRIVER_ARRIVING', 'Driver is arriving at pickup location!')}
-                  className="py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition flex items-center justify-center gap-1"
+                  className="py-2 px-3 rounded-xl bg-sunrise-50 hover:bg-sunrise-100 text-sunrise-800 border border-sunrise-200 transition flex items-center justify-center gap-1"
                 >
-                  Mark Arrived
+                  Mark arrived
                 </button>
 
                 {/* Complete Ride Button */}
                 <button
                   type="button"
                   onClick={() => handleStatusChange('COMPLETED', 'Ride has finished safely.')}
-                  className="py-2 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 transition flex items-center justify-center gap-1"
+                  className="py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 transition flex items-center justify-center gap-1"
                 >
-                  Complete Ride
+                  Complete ride
                 </button>
               </div>
             </div>
@@ -546,31 +546,31 @@ export const LiveRidePage = () => {
           />
 
           {/* Ride Details Summary Card */}
-          <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 text-xs">
-            <div className="flex items-center gap-3 pb-3 border-b border-slate-800">
-              <div className="w-10 h-10 rounded-full bg-brand-500/20 text-brand-300 font-bold flex items-center justify-center text-sm border border-brand-500/30">
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-3 text-xs">
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-full bg-brand-50 text-brand-700 font-bold flex items-center justify-center text-sm border border-brand-200">
                 {ride.driver?.name?.charAt(0) || 'D'}
               </div>
               <div>
-                <h4 className="font-bold text-white text-sm">{ride.driver?.name}</h4>
-                <p className="text-slate-400 text-[11px]">
+                <h4 className="font-bold text-slate-900 text-sm">{ride.driver?.name}</h4>
+                <p className="text-slate-500 text-xs">
                   {ride.vehicle?.model} • {ride.vehicle?.registrationNumber}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2 text-slate-300">
+            <div className="space-y-2 text-slate-700">
               <div className="flex justify-between">
                 <span className="text-slate-500">Departure:</span>
-                <span className="font-semibold text-slate-200">{ride.departureTime} ({ride.date})</span>
+                <span className="font-semibold text-slate-900">{ride.departureTime} ({ride.date})</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Available Seats:</span>
-                <span className="font-semibold text-slate-200">{ride.availableSeats} of {ride.totalSeats}</span>
+                <span className="text-slate-500">Available seats:</span>
+                <span className="font-semibold text-slate-900">{ride.availableSeats} of {ride.totalSeats}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Contribution:</span>
-                <span className="font-bold text-emerald-400">₹{ride.estimatedCost} / seat</span>
+                <span className="font-bold text-brand-700">₹{ride.estimatedCost} / seat</span>
               </div>
             </div>
           </div>

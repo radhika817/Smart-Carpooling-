@@ -11,16 +11,20 @@ export const connectDB = async () => {
 
   try {
     if (uri && uri.trim() !== '') {
-      console.log('Connecting to MongoDB Atlas / External URI...');
-      await mongoose.connect(uri);
-      console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
-      // Ensure existing users retroactively have full verificationStatus schema
-      const { runVerificationMigration } = await import('./migrateVerificationStatus.js');
-      await runVerificationMigration().catch((err) => console.warn('Migration notice:', err.message));
-      // Ensure initial system administrator is provisioned
-      const { runAdminSeed } = await import('./seedAdmin.js');
-      await runAdminSeed().catch((err) => console.warn('Admin seed notice:', err.message));
-      return;
+      try {
+        console.log('Connecting to MongoDB Atlas / External URI...');
+        await mongoose.connect(uri);
+        console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
+        // Ensure existing users retroactively have full verificationStatus schema
+        const { runVerificationMigration } = await import('./migrateVerificationStatus.js');
+        await runVerificationMigration().catch((err) => console.warn('Migration notice:', err.message));
+        // Ensure initial system administrator is provisioned
+        const { runAdminSeed } = await import('./seedAdmin.js');
+        await runAdminSeed().catch((err) => console.warn('Admin seed notice:', err.message));
+        return;
+      } catch (atlasError) {
+        console.warn('⚠️ External MongoDB connection failed:', atlasError.message, '— falling back to in-memory MongoDB...');
+      }
     }
 
     // Fallback in development/test when no URI is provided

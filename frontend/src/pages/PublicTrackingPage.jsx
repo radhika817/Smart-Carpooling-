@@ -138,24 +138,24 @@ export const PublicTrackingPage = () => {
   }, [telemetry, isExpired]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-canvas text-slate-900 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center font-black shadow-2xs">
               SR
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-black text-white">
+              <h1 className="text-lg sm:text-xl font-black text-slate-900">
                 SmartRide Live Commute Tracker
               </h1>
-              <p className="text-xs text-slate-400">Public secure live location stream</p>
+              <p className="text-xs text-slate-500">Public secure live location stream</p>
             </div>
           </div>
           <Link
             to="/"
-            className="text-xs text-brand-400 font-bold hover:underline"
+            className="text-xs text-brand-700 font-semibold hover:underline"
           >
             Learn about SmartRide
           </Link>
@@ -163,19 +163,19 @@ export const PublicTrackingPage = () => {
 
         {/* Loading State */}
         {loading ? (
-          <div className="glass-card p-12 rounded-3xl text-center space-y-3">
-            <div className="w-10 h-10 mx-auto rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
-            <p className="text-sm text-slate-400">Resolving secure tracking link...</p>
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3 shadow-sm">
+            <div className="w-10 h-10 mx-auto rounded-full border-2 border-brand-600 border-t-transparent animate-spin" />
+            <p className="text-sm text-slate-600">Resolving secure tracking link...</p>
           </div>
         ) : isExpired ? (
           /* Privacy Expired State (HTTP 410 Guardrail) */
-          <div className="glass-card p-8 sm:p-12 rounded-3xl border border-slate-800 text-center space-y-5 animate-fade-in shadow-2xl">
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 shadow-inner">
-              <ShieldCheck className="w-8 h-8 text-emerald-400" />
+          <div className="bg-white p-8 sm:p-12 rounded-2xl border border-slate-200 text-center space-y-5 shadow-sm">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+              <ShieldCheck className="w-8 h-8 text-emerald-600" />
             </div>
             <div className="max-w-md mx-auto space-y-2">
-              <h2 className="text-2xl font-black text-white">Live Tracking Expired</h2>
-              <p className="text-sm text-slate-300 font-medium">
+              <h2 className="text-2xl font-black text-slate-900">Live Tracking Expired</h2>
+              <p className="text-sm text-slate-700 font-medium">
                 This ride has safely concluded or the allotted sharing window has ended.
               </p>
               <p className="text-xs text-slate-500 leading-relaxed pt-2">
@@ -185,9 +185,9 @@ export const PublicTrackingPage = () => {
             <div className="pt-4">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-600/20 transition"
               >
-                Back to Homepage <ArrowRight className="w-3.5 h-3.5" />
+                Back to homepage <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
@@ -196,58 +196,58 @@ export const PublicTrackingPage = () => {
           <div className="space-y-6">
             {/* Status & Driver Pill */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="glass-card p-4 rounded-2xl border border-slate-800 space-y-1">
-                <span className="text-[11px] text-slate-400 block font-semibold uppercase">Status</span>
-                <span className="inline-flex items-center gap-1.5 text-sm font-black text-emerald-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm space-y-1">
+                <span className="text-xs text-slate-500 block font-semibold">Status</span>
+                <span className="inline-flex items-center gap-1.5 text-sm font-black text-emerald-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   {telemetry.status}
                 </span>
               </div>
-              <div className="glass-card p-4 rounded-2xl border border-slate-800 space-y-1">
-                <span className="text-[11px] text-slate-400 block font-semibold uppercase">Driver</span>
-                <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                  <Car className="w-4 h-4 text-brand-400" />
+              <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm space-y-1">
+                <span className="text-xs text-slate-500 block font-semibold">Driver</span>
+                <span className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                  <Car className="w-4 h-4 text-brand-600" />
                   {telemetry.driver?.name} ({telemetry.vehicle?.model})
                 </span>
               </div>
-              <div className="glass-card p-4 rounded-2xl border border-slate-800 space-y-1">
-                <span className="text-[11px] text-slate-400 block font-semibold uppercase">ETA Remaining</span>
-                <span className="text-sm font-black text-amber-400">
+              <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm space-y-1">
+                <span className="text-xs text-slate-500 block font-semibold">Estimated ETA</span>
+                <span className="text-sm font-black text-sunrise-700">
                   {liveLocation?.etaMinutes ? `~${liveLocation.etaMinutes} mins` : 'Calculating...'}
                 </span>
               </div>
             </div>
 
             {/* Live Leaflet Map */}
-            <div className="relative rounded-3xl overflow-hidden border border-slate-800 h-[450px] shadow-2xl bg-slate-950">
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-[450px] shadow-sm bg-slate-100">
               <div ref={mapContainerRef} className="w-full h-full" />
-              <div className="absolute bottom-3 left-3 z-[1000] px-3 py-1.5 rounded-xl bg-slate-950/90 backdrop-blur border border-slate-800 text-xs text-slate-300 font-semibold flex items-center gap-2">
-                <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <div className="absolute bottom-3 left-3 z-[1000] px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur border border-slate-200 text-xs text-slate-700 font-semibold flex items-center gap-2 shadow-sm">
+                <Radio className="w-3.5 h-3.5 text-brand-600 animate-pulse" />
                 Live Telemetry Active
               </div>
             </div>
 
             {/* Commute Route Summary */}
-            <div className="glass-card p-5 rounded-3xl border border-slate-800 space-y-3 text-xs">
+            <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-sm space-y-3 text-xs">
               <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-brand-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Pickup Location</span>
-                  <span className="font-semibold text-white">{telemetry.startLocation?.address}</span>
+                  <span className="text-slate-500 block text-xs font-semibold">Pickup location</span>
+                  <span className="font-semibold text-slate-900">{telemetry.startLocation?.address}</span>
                 </div>
               </div>
-              <div className="border-l-2 border-dashed border-slate-800 ml-2 h-4" />
+              <div className="border-l-2 border-dashed border-slate-200 ml-2 h-4" />
               <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-sunrise-700 flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Destination</span>
-                  <span className="font-semibold text-white">{telemetry.destination?.address}</span>
+                  <span className="text-slate-500 block text-xs font-semibold">Destination</span>
+                  <span className="font-semibold text-slate-900">{telemetry.destination?.address}</span>
                 </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center text-sm text-slate-400">
+          <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-sm text-slate-600 shadow-sm">
             {errorMessage || 'Ride tracking information is unavailable.'}
           </div>
         )}
