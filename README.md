@@ -6,6 +6,11 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose_8-brightgreen.svg)](https://www.mongodb.com/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8-black.svg)](https://socket.io/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8.svg)](https://tailwindcss.com/)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live_App-black?logo=vercel)](https://smart-carpooling.vercel.app)
+[![Render Backend](https://img.shields.io/badge/Render-API_Service-46E3B7?logo=render&logoColor=white)](https://smart-carpooling-backend.onrender.com/api/health)
+
+> 🚀 **Live Web App:** [https://smart-carpooling.vercel.app](https://smart-carpooling.vercel.app)  
+> ⚡ **Production API Service:** [https://smart-carpooling-backend.onrender.com](https://smart-carpooling-backend.onrender.com)
 
 > **SmartRide** is a full-stack, peer-to-peer carpooling platform designed for students and corporate employees traveling along similar commute routes. It enables members to discover shared rides, calculate transparent non-commercial fuel splits, track rides in real time, and commute safely within verified campus or company communities.
 
@@ -274,7 +279,7 @@ The backend automatically provisions these verified test accounts on startup for
 | **Demo Driver** | `demo.driver@smartride.edu` | `DemoPass123!` | Verified + Pre-registered *Tata Nexon EV* vehicle |
 | **Demo Admin** | `demo.admin@smartride.edu` | `DemoPass123!` | Full operations console & safety oversight privilege |
 
-*(You can also use the 1-click **Quick Demo Fill** buttons on the `/login` page to populate these credentials automatically).*
+*(You can test these instantly on the live site at [smart-carpooling.vercel.app/login](https://smart-carpooling.vercel.app/login) using the 1-click **Quick Demo Fill** buttons).*
 
 ---
 
