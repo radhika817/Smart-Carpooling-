@@ -22,11 +22,31 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  const normalized = origin.replace(/\/+$/, '');
+  const allowed = [
+    CLIENT_URL.replace(/\/+$/, ''),
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://smart-carpooling.vercel.app',
+  ];
+  if (allowed.includes(normalized)) return true;
+  if (/^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(normalized)) return true;
+  return false;
+};
+
 // Security & Parsing Middleware
 app.use(helmet());
 app.use(
   cors({
-    origin: [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
   })
 );

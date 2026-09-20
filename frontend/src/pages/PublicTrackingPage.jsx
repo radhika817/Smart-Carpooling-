@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { safetyService } from '../services/safetyService';
 import { io } from 'socket.io-client';
+import { SOCKET_URL } from '../services/socket';
 
 export const PublicTrackingPage = () => {
   const { shareToken } = useParams();
@@ -51,8 +52,7 @@ export const PublicTrackingPage = () => {
   useEffect(() => {
     if (!telemetry?.rideId || isExpired) return;
 
-    const socketUrl = 'http://localhost:5000';
-    const nsp = io(`${socketUrl}/rides/${telemetry.rideId}`, {
+    const nsp = io(`${SOCKET_URL}/rides/${telemetry.rideId}`, {
       auth: { token: shareToken },
       transports: ['websocket', 'polling'],
     });

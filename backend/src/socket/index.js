@@ -9,10 +9,30 @@ let io = null;
 // In-memory cache of live driver locations per ride (for instant client sync upon connection)
 const activeRideLocations = new Map();
 
+const isOriginAllowed = (origin, clientUrl) => {
+  if (!origin) return true;
+  const normalized = origin.replace(/\/+$/, '');
+  const allowed = [
+    clientUrl ? clientUrl.replace(/\/+$/, '') : '',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://smart-carpooling.vercel.app',
+  ];
+  if (allowed.includes(normalized)) return true;
+  if (/^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(normalized)) return true;
+  return false;
+};
+
 export const initSocket = (httpServer, clientUrl) => {
   io = new Server(httpServer, {
     cors: {
-      origin: [clientUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: (origin, callback) => {
+        if (isOriginAllowed(origin, clientUrl)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`Socket CORS blocked for origin: ${origin}`));
+        }
+      },
       methods: ['GET', 'POST'],
       credentials: true,
     },

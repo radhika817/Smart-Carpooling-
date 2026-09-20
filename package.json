@@ -4,6 +4,8 @@
   "private": true,
   "description": "SmartRide — Smart Carpooling & Ride Sharing Platform",
   "scripts": {
+    "build": "cd frontend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",

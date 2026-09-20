@@ -1,7 +1,9 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace('/api', '')
+const rawEnvUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/^["']|["']$/g, '');
+
+export const SOCKET_URL = rawEnvUrl
+  ? rawEnvUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '')
   : 'http://localhost:5000';
 
 /**
@@ -11,7 +13,7 @@ const SOCKET_URL = import.meta.env.VITE_API_URL
  * @returns {Socket} Connected Socket.IO client instance
  */
 export const connectRideSocket = (rideId) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('smartride_token') || localStorage.getItem('token');
 
   const socket = io(`${SOCKET_URL}/rides/${rideId}`, {
     auth: {
@@ -24,7 +26,7 @@ export const connectRideSocket = (rideId) => {
   });
 
   socket.on('connect', () => {
-    console.log(`[Socket Connected] Connected to ride namespace /rides/${rideId}`);
+    console.log(`[Socket Connected] Connected to ride namespace /rides/${rideId} on ${SOCKET_URL}`);
   });
 
   socket.on('connect_error', (err) => {
