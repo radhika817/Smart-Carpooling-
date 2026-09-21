@@ -74,8 +74,17 @@ export const SearchRidesPage = () => {
         params.organization = user.organization;
       }
 
+      if (user?._id || user?.id) {
+        params.excludeDriver = user._id || user.id;
+      }
+
       const data = await rideService.searchRides(params);
-      setRides(data || []);
+      const currentUserId = (user?._id || user?.id)?.toString();
+      const filteredRides = (data || []).filter((r) => {
+        const driverId = (r.driver?._id || r.driver)?.toString();
+        return !currentUserId || driverId !== currentUserId;
+      });
+      setRides(filteredRides);
     } catch (err) {
       setBookingError(err.message || 'Failed to fetch rides');
     } finally {
@@ -96,6 +105,7 @@ export const SearchRidesPage = () => {
     if (departureTime) params.time = departureTime;
     if (seats) params.seats = seats;
     if (communityOnly) params.communityOnly = 'true';
+    if (user?._id || user?.id) params.excludeDriver = user._id || user.id;
     setSearchParams(params);
     executeSearch();
   };
@@ -110,7 +120,9 @@ export const SearchRidesPage = () => {
       return;
     }
 
-    if (user?._id === ride.driver?._id) {
+    const driverId = (ride.driver?._id || ride.driver)?.toString();
+    const currentUserId = (user?._id || user?.id)?.toString();
+    if (currentUserId && driverId === currentUserId) {
       setBookingError('You cannot book your own ride!');
       return;
     }

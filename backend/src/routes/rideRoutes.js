@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as rideController from '../controllers/rideController.js';
 import * as bookingController from '../controllers/bookingController.js';
 import * as safetyController from '../controllers/safetyController.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
 const router = Router();
@@ -10,8 +10,8 @@ const router = Router();
 // Public time-boxed live tracking (must be before /:id)
 router.get('/track/:shareToken', safetyController.getPublicTracking);
 
-// Search endpoint (open for public/passenger discovery)
-router.get('/search', rideController.searchRides);
+// Search endpoint (open for public/passenger discovery, identifies user if logged in)
+router.get('/search', optionalAuth, rideController.searchRides);
 
 // Cost-sharing calculation preview
 router.post('/cost-split', rideController.calculateCost);

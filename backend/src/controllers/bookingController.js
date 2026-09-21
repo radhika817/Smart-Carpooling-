@@ -84,3 +84,32 @@ export const cancelBooking = async (req, res, next) => {
     next(error);
   }
 };
+
+export const markPaid = async (req, res, next) => {
+  try {
+    const booking = await bookingService.markBookingAsPaid(
+      req.params.id,
+      req.user._id || req.user.id
+    );
+    return res.status(200).json({
+      success: true,
+      message: 'Booking marked as paid',
+      data: booking,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDriverBookings = async (req, res, next) => {
+  try {
+    const bookings = await bookingService.getDriverBookings(req.user._id || req.user.id);
+    return res.status(200).json({
+      success: true,
+      data: bookings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -124,7 +124,10 @@ export const searchRides = async (req, res, next) => {
       organization,
       communityOnly,
       carpoolGroup,
+      excludeDriver,
     } = req.query;
+
+    const excludeDriverId = req.user?._id || req.user?.id || excludeDriver;
 
     let pickupCoords = null;
     if (pickupLng !== undefined && pickupLat !== undefined && !isNaN(Number(pickupLng)) && !isNaN(Number(pickupLat))) {
@@ -148,6 +151,7 @@ export const searchRides = async (req, res, next) => {
       organization,
       communityOnly: communityOnly === 'true' || communityOnly === true,
       carpoolGroup,
+      excludeDriverId,
     });
 
     return res.status(200).json({

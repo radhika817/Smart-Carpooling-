@@ -233,11 +233,16 @@ export const searchRides = async ({
   organization,
   communityOnly,
   carpoolGroup,
+  excludeDriverId,
 }) => {
   const filter = {
     status: { $in: ['OPEN', 'BOOKING'] },
     availableSeats: { $gte: seats ? parseInt(seats, 10) : 1 },
   };
+
+  if (excludeDriverId) {
+    filter.driver = { $ne: excludeDriverId };
+  }
 
   if (date) {
     filter.date = date;
@@ -266,6 +271,15 @@ export const searchRides = async ({
       { path: 'carpoolGroup', select: 'name organization' },
     ])
     .lean();
+
+  // Exclude user's own posted rides if excludeDriverId is provided
+  if (excludeDriverId) {
+    const excludeStr = excludeDriverId.toString();
+    rides = rides.filter((r) => {
+      const dId = (r.driver?._id || r.driver)?.toString();
+      return dId !== excludeStr;
+    });
+  }
 
   // Community Scope Filtering (Phase 8)
   const normalizedUserOrg = organization ? organization.toLowerCase().trim() : '';

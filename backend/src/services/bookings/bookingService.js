@@ -1,4 +1,5 @@
 import { Booking } from '../../models/Booking.js';
+import { Ride } from '../../models/Ride.js';
 import * as rideService from '../rides/rideService.js';
 
 /**
@@ -10,7 +11,9 @@ export const createBooking = async ({ rideId, passengerId, pickupPoint, dropPoin
 
   // 1. Verify ride details and ensure passenger != driver
   const ride = await rideService.getRideById(rideId);
-  if (ride.driver._id.toString() === passengerId.toString()) {
+  const driverIdStr = (ride.driver?._id || ride.driver).toString();
+  const passengerIdStr = (passengerId?._id || passengerId).toString();
+  if (driverIdStr === passengerIdStr) {
     const error = new Error('Drivers cannot book seats on their own rides.');
     error.statusCode = 400;
     throw error;
@@ -23,7 +26,7 @@ export const createBooking = async ({ rideId, passengerId, pickupPoint, dropPoin
   try {
     const totalPrice = (ride.estimatedCost || 50) * seatCount;
 
-    // 3. Create booking record
+    // 3. Create booking record with default paymentStatus: 'pending'
     const booking = await Booking.create({
       ride: rideId,
       passenger: passengerId,
@@ -38,6 +41,7 @@ export const createBooking = async ({ rideId, passengerId, pickupPoint, dropPoin
       seats: seatCount,
       totalPrice,
       status: 'CONFIRMED',
+      paymentStatus: 'pending',
     });
 
     return await booking.populate([
@@ -170,3 +174,60 @@ export const cancelBooking = async (bookingId, passengerId) => {
   await booking.save();
   return booking;
 };
+
+/**
+ * Mark a booking as paid by the ride's driver (system authorization check)
+ */
+export const markBookingAsPaid = async (bookingId, driverId) => {
+  const booking = await Booking.findById(bookingId).populate('ride');
+  if (!booking) {
+    const error = new Error('Booking not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const rideDriverId = booking.ride?.driver?._id
+    ? booking.ride.driver._id.toString()
+    : booking.ride?.driver?.toString();
+  const callerDriverId = driverId?._id ? driverId._id.toString() : driverId.toString();
+
+  if (!rideDriverId || rideDriverId !== callerDriverId) {
+    const error = new Error('Forbidden: Only the driver of this ride can mark this booking as paid.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  booking.paymentStatus = 'paid';
+  await booking.save();
+
+  return await booking.populate([
+    { path: 'passenger', select: 'name email phone profileImage rating verificationStatus' },
+    {
+      path: 'ride',
+      populate: [
+        { path: 'driver', select: 'name email phone profileImage rating' },
+        { path: 'vehicle', select: 'model registrationNumber' },
+      ],
+    },
+  ]);
+};
+
+/**
+ * Get all passenger bookings for rides offered by a driver
+ */
+export const getDriverBookings = async (driverId) => {
+  const callerDriverId = driverId?._id ? driverId._id.toString() : driverId.toString();
+  const driverRides = await Ride.find({ driver: callerDriverId }).select('_id');
+  const rideIds = driverRides.map((r) => r._id);
+
+  return await Booking.find({ ride: { $in: rideIds } })
+    .populate([
+      { path: 'passenger', select: 'name email phone profileImage rating verificationStatus' },
+      {
+        path: 'ride',
+        select: 'startLocation destination date departureTime status estimatedCost availableSeats totalSeats',
+      },
+    ])
+    .sort({ createdAt: -1 });
+};
+

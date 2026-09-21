@@ -21,6 +21,7 @@ import {
   Ban,
   ArrowRight,
   Radio,
+  Users,
 } from 'lucide-react';
 import { SafetySettingsCard } from '../components/safety/SafetySettingsCard';
 import { RateRideModal } from '../components/safety/RateRideModal';
@@ -33,6 +34,7 @@ export const DashboardPage = () => {
 
   const [myRides, setMyRides] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
+  const [driverBookings, setDriverBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
@@ -65,8 +67,12 @@ export const DashboardPage = () => {
     setLoading(true);
     try {
       if (isDriver) {
-        const rides = await rideService.getRides({ driver: userId });
+        const [rides, dBookings] = await Promise.all([
+          rideService.getRides({ driver: userId }),
+          bookingService.getDriverBookings().catch(() => []),
+        ]);
         setMyRides(rides || []);
+        setDriverBookings(dBookings || []);
       }
       const bookings = await bookingService.getMyBookings();
       setMyBookings(bookings || []);
@@ -123,6 +129,18 @@ export const DashboardPage = () => {
       loadDashboardData();
     } catch (err) {
       setActionError(err.message || 'Failed to cancel booking');
+    }
+  };
+
+  const handleMarkAsPaid = async (bookingId) => {
+    setActionError('');
+    setActionSuccess('');
+    try {
+      await bookingService.markAsPaid(bookingId);
+      setActionSuccess('Payment confirmed! Booking marked as paid.');
+      loadDashboardData();
+    } catch (err) {
+      setActionError(err.message || 'Failed to mark booking as paid');
     }
   };
 
@@ -390,6 +408,70 @@ export const DashboardPage = () => {
                       </button>
                     )}
                   </div>
+
+                  {/* Booked Passengers & Offline Payment Tracker */}
+                  {(() => {
+                    const rideBookings = driverBookings.filter(
+                      (db) => (db.ride?._id || db.ride) === ride._id
+                    );
+                    return (
+                      <div className="pt-3 border-t border-slate-100 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-brand-600" />
+                            Passenger Roster & Payments ({rideBookings.length})
+                          </span>
+                        </div>
+
+                        {rideBookings.length === 0 ? (
+                          <p className="text-[11px] text-slate-500 italic bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                            No passengers have booked seats yet for this ride.
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {rideBookings.map((bk) => (
+                              <div
+                                key={bk._id}
+                                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs"
+                              >
+                                <div className="min-w-0 flex-1 pr-2">
+                                  <span className="font-bold text-slate-900 block truncate">
+                                    {bk.passenger?.name || 'Passenger'}
+                                  </span>
+                                  <span className="text-[11px] text-slate-500">
+                                    {bk.seats} seat(s) • Amount due: <strong className="text-slate-800">₹{bk.totalPrice}</strong>
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                      bk.paymentStatus === 'paid'
+                                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                        : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                    }`}
+                                  >
+                                    {bk.paymentStatus === 'paid' ? 'Paid' : 'Payment Pending'}
+                                  </span>
+
+                                  {bk.paymentStatus !== 'paid' && bk.status !== 'CANCELLED' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkAsPaid(bk._id)}
+                                      className="py-1 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] transition shadow-xs"
+                                      title="Confirm cash/UPI payment received from passenger"
+                                    >
+                                      Mark as Paid
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
@@ -452,7 +534,16 @@ export const DashboardPage = () => {
 
                   <div className="text-right">
                     <span className="text-lg font-black text-slate-900">₹{b.totalPrice}</span>
-                    <span className="text-[11px] text-slate-500 block">Total fare</span>
+                    <span className="text-[11px] text-slate-500 block">Amount due</span>
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        b.paymentStatus === 'paid'
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          : 'bg-amber-50 text-amber-800 border border-amber-200'
+                      }`}
+                    >
+                      {b.paymentStatus === 'paid' ? 'Paid' : 'Payment Pending'}
+                    </span>
                   </div>
                 </div>
 

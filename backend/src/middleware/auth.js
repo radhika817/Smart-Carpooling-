@@ -58,3 +58,22 @@ export const requireRole = (...roles) => {
     next();
   };
 };
+
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const secret = process.env.JWT_SECRET || 'smartride_fallback_jwt_secret_key';
+      const decoded = jwt.verify(token, secret);
+      const user = await User.findById(decoded.id);
+      if (user) {
+        req.user = user;
+      }
+    }
+  } catch {
+    // Silently continue for unauthenticated users
+  }
+  next();
+};
+

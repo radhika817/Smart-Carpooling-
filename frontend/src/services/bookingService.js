@@ -20,4 +20,14 @@ export const bookingService = {
     const res = await api.post(`/bookings/${id}/cancel`);
     return res.data;
   },
+
+  async markAsPaid(id) {
+    const res = await api.patch(`/bookings/${id}/mark-paid`);
+    return res.data;
+  },
+
+  async getDriverBookings() {
+    const res = await api.get('/bookings/driver');
+    return res.data;
+  },
 };

@@ -84,6 +84,12 @@ export const CreateRidePage = () => {
     },
   });
 
+  // Clean number inputs to prevent leading zero bugs (e.g. '0400' -> '400')
+  const cleanNumberInput = (raw) => {
+    if (raw === '' || raw === undefined || raw === null) return '';
+    return String(raw).replace(/^0+(?=\d)/, '');
+  };
+
   // Calculate live fair cost split
   const totalTripCost =
     (Number(costBreakdown.fuel) || 0) +
@@ -130,10 +136,22 @@ export const CreateRidePage = () => {
           [name]: checked,
         },
       }));
+    } else if (name === 'totalSeats') {
+      const cleaned = cleanNumberInput(value);
+      setFormData((prev) => ({
+        ...prev,
+        totalSeats: cleaned === '' ? '' : Math.max(1, Number(cleaned)),
+      }));
+    } else if (name === 'estimatedCost') {
+      const cleaned = cleanNumberInput(value);
+      setFormData((prev) => ({
+        ...prev,
+        estimatedCost: cleaned === '' ? '' : Number(cleaned),
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        [name]: name === 'totalSeats' || name === 'estimatedCost' ? Number(value) : value,
+        [name]: value,
       }));
     }
   };
@@ -418,8 +436,8 @@ export const CreateRidePage = () => {
                   <input
                     type="number"
                     min="0"
-                    value={costBreakdown.fuel}
-                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, fuel: e.target.value }))}
+                    value={costBreakdown.fuel === 0 ? '0' : (costBreakdown.fuel || '')}
+                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, fuel: cleanNumberInput(e.target.value) }))}
                     placeholder="200"
                     className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -433,8 +451,8 @@ export const CreateRidePage = () => {
                   <input
                     type="number"
                     min="0"
-                    value={costBreakdown.toll}
-                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, toll: e.target.value }))}
+                    value={costBreakdown.toll === 0 ? '0' : (costBreakdown.toll || '')}
+                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, toll: cleanNumberInput(e.target.value) }))}
                     placeholder="0"
                     className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -448,8 +466,8 @@ export const CreateRidePage = () => {
                   <input
                     type="number"
                     min="0"
-                    value={costBreakdown.parking}
-                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, parking: e.target.value }))}
+                    value={costBreakdown.parking === 0 ? '0' : (costBreakdown.parking || '')}
+                    onChange={(e) => setCostBreakdown((prev) => ({ ...prev, parking: cleanNumberInput(e.target.value) }))}
                     placeholder="0"
                     className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -481,7 +499,7 @@ export const CreateRidePage = () => {
                     name="estimatedCost"
                     min="0"
                     required
-                    value={formData.estimatedCost}
+                    value={formData.estimatedCost === 0 ? '0' : (formData.estimatedCost || '')}
                     onChange={handleChange}
                     className="w-28 pl-7 pr-2 py-1.5 rounded-lg bg-white border border-brand-500/40 text-sm font-bold text-slate-900 text-right focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20"
                   />
