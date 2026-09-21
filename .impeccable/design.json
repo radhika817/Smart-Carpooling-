@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-21T14:34:00Z",
+  "title": "Design System: SmartRide",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Forest Emerald",
+        "canonical": "#047857",
+        "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#6ee7b7", "#a7f3d0", "#d1fae5", "#ecfdf5"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Sunrise Amber",
+        "canonical": "#c2410c",
+        "tonalRamp": ["#7c2d12", "#9a3412", "#c2410c", "#ea580c", "#f97316", "#fb923c", "#fdba74", "#fed7aa", "#ffedd5", "#fff7ed"]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Daylight Canvas",
+        "canonical": "#f6f8f7",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#f6f8f7"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero and major section introductions." },
+      "headline": { "displayName": "Headline", "purpose": "Primary page titles." },
+      "title": { "displayName": "Title", "purpose": "Card titles, modal dialog headings, group labels." },
+      "body": { "displayName": "Body", "purpose": "Body copy, instructions, table values." },
+      "label": { "displayName": "Label", "purpose": "Form field labels, badge text, metadata pills." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)", "purpose": "Rest state for all cards and panels." },
+      { "name": "card-hover", "value": "0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04)", "purpose": "Hover lift for interactive ride listings and groups." },
+      { "name": "elevated", "value": "0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05)", "purpose": "Modals, overlays, and floating map telemetry widgets." }
+    ],
+    "motion": [
+      { "name": "ease-out-smooth", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "State transitions, card lifts, and modal appearance." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button for booking, creating rides, and confirming workflows.",
+      "html": "<button class=\"ds-btn-primary\">Book Seat</button>",
+      "css": ".ds-btn-primary { background: #047857; color: #ffffff; padding: 10px 20px; font-weight: 600; font-size: 14px; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-primary:hover { background: #065f46; }"
+    },
+    {
+      "name": "Transit Accent Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action button for departure time selection or driver controls.",
+      "html": "<button class=\"ds-btn-secondary\">Start Trip</button>",
+      "css": ".ds-btn-secondary { background: #c2410c; color: #ffffff; padding: 10px 20px; font-weight: 600; font-size: 14px; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-secondary:hover { background: #9a3412; }"
+    },
+    {
+      "name": "Verified Trust Chip",
+      "kind": "chip",
+      "refersTo": "chip-verified",
+      "description": "Indicates verified driver license or government ID trust status.",
+      "html": "<span class=\"ds-chip-verified\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"/></svg>Verified Driver</span>",
+      "css": ".ds-chip-verified { display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; }"
+    },
+    {
+      "name": "Surface Card",
+      "kind": "card",
+      "refersTo": "card-primary",
+      "description": "Primary content container on Daylight Canvas.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Ride Summary</h3><div class=\"ds-recessed\"><p>Departure at 08:30 AM</p></div></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05); } .ds-card-title { margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #0f172a; } .ds-recessed { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 14px; color: #475569; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Living Commute",
+    "overview": "SmartRide embraces an airy, high-contrast daylight aesthetic anchored by Forest Emerald (#047857) and Sunrise Amber (#C2410C), conveying unshakeable trust, verifiable safety, and everyday commuter convenience.",
+    "keyCharacteristics": [
+      "Warm Daylight Canvas (#F6F8F7) eliminating glare while maintaining deep contrast.",
+      "Dual-Accent Hierarchy: Forest Emerald for trust and safety, Sunrise Amber for transit urgency.",
+      "True 3-Tier Elevation (Canvas -> White Card -> Recessed Slate Panel).",
+      "Legible Human Typography using Plus Jakarta Sans and Inter."
+    ],
+    "rules": [
+      { "name": "The Dual Anchor Rule", "body": "Emerald guides the user forward into confirmed trust; Amber draws attention to temporal urgency and live changes. Never use Amber for non-urgent decorative accents.", "section": "colors" },
+      { "name": "The No-Mud Rule", "body": "Never place washed-out gray text on colored backgrounds. On colored pill badges, text must be a high-contrast deep shade of that hue or crisp white.", "section": "colors" },
+      { "name": "The Sentence Case Rule", "body": "Labels, badges, and headers must use Sentence case or Title Case. Never use ALL CAPS with heavy tracking for standard form labels or badge titles.", "section": "typography" },
+      { "name": "The 3-Tier Hierarchy Rule", "body": "Level 0 is canvas (#F6F8F7), Level 1 is white card (#FFFFFF), Level 2 is recessed panel (#F8FAFC). Never nest a pure white card inside another pure white card.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do maintain a strict 4.5:1 minimum contrast ratio for all secondary and metadata copy.",
+      "Do use Sentence case for badges, button copy, and field labels.",
+      "Do use the 3-tier elevation model for complex information grouping.",
+      "Do preserve the dual-accent role: Emerald for trust, Amber for transit urgency."
+    ],
+    "donts": [
+      "Don't use ALL CAPS for labels, table headers, or badges.",
+      "Don't use pure gray text on colored badge backgrounds.",
+      "Don't use decorative gradient text on metrics or headings.",
+      "Don't use heavy dark borders (border-l-4) or generic harsh drop shadows."
+    ]
+  }
+}
