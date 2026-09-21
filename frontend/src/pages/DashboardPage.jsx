@@ -177,6 +177,60 @@ export const DashboardPage = () => {
         </div>
       </div>
 
+      {/* Metric Highlights Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            {isDriver ? 'Offered Rides' : 'Reserved Rides'}
+          </span>
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className="text-2xl font-black text-slate-900">
+              {isDriver ? myRides.length : myBookings.length}
+            </span>
+            <span className="text-xs text-slate-500">total scheduled</span>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            Confirmed Status
+          </span>
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className="text-2xl font-black text-brand-700">
+              {isDriver
+                ? myRides.filter((r) => r.status === 'OPEN' || r.status === 'IN_PROGRESS').length
+                : myBookings.filter((b) => b.status === 'CONFIRMED').length}
+            </span>
+            <span className="text-xs text-slate-500">active journeys</span>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            Campus Network
+          </span>
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <span className="text-sm font-bold text-slate-900 truncate">
+              {user?.organization || 'Universal Network'}
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-500">
+            {user?.organization ? 'Scoped community' : 'Cross-commute access'}
+          </span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            Safety Clearance
+          </span>
+          <div className="flex items-center gap-1.5 mt-1.5 text-emerald-800">
+            <ShieldCheck className="w-4 h-4 text-brand-600 flex-shrink-0" />
+            <span className="text-sm font-bold text-slate-900">ID Verified</span>
+          </div>
+          <span className="text-[11px] text-slate-500">Tier-1 trust protocol</span>
+        </div>
+      </div>
+
       {/* Action Alerts */}
       {actionError && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-3">
@@ -224,24 +278,33 @@ export const DashboardPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {myRides.map((ride) => (
-                <div key={ride._id} className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md transition space-y-4">
-                  <div className="flex items-start justify-between">
+                <div key={ride._id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition space-y-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          ride.status === 'IN_PROGRESS'
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                            : ride.status === 'COMPLETED'
-                            ? 'bg-blue-50 text-blue-800 border border-blue-200'
-                            : ride.status === 'CANCELLED'
-                            ? 'bg-red-50 text-red-700 border border-red-200'
-                            : 'bg-sunrise-50 text-sunrise-800 border border-sunrise-200'
-                        }`}
-                      >
-                        {formatRideStatus(ride.status)}
-                      </span>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Vehicle: <span className="text-slate-800 font-semibold">{ride.vehicle?.model}</span> ({ride.vehicle?.registrationNumber})
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                            ride.status === 'IN_PROGRESS'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : ride.status === 'COMPLETED'
+                              ? 'bg-blue-50 text-blue-800 border border-blue-200'
+                              : ride.status === 'CANCELLED'
+                              ? 'bg-red-50 text-red-700 border border-red-200'
+                              : 'bg-sunrise-50 text-sunrise-800 border border-sunrise-200'
+                          }`}
+                        >
+                          {formatRideStatus(ride.status)}
+                        </span>
+                        <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
+                          {ride.availableSeats} of {ride.totalSeats} seats open
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                        <Car className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-slate-800 font-semibold">{ride.vehicle?.model || 'Vehicle'}</span>
+                        {ride.vehicle?.registrationNumber && (
+                          <span className="text-slate-500">({ride.vehicle.registrationNumber})</span>
+                        )}
                       </p>
                     </div>
 
@@ -251,28 +314,43 @@ export const DashboardPage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <MapPin className="w-3.5 h-3.5 text-brand-600 flex-shrink-0" />
-                      <span className="truncate">{ride.startLocation?.address}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <MapPin className="w-3.5 h-3.5 text-sunrise-700 flex-shrink-0" />
-                      <span className="truncate">{ride.destination?.address}</span>
-                    </div>
-                  </div>
+                  {/* Route Corridor Timeline */}
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3 relative">
+                    <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-slate-200" />
 
-                  <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
-                    <span className="text-slate-500 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" /> {ride.date} at {ride.departureTime}
-                    </span>
-                    <span className="font-semibold text-brand-700">
-                      {ride.availableSeats} of {ride.totalSeats} seats open
-                    </span>
+                    <div className="relative flex items-start gap-3 pl-4">
+                      <div className="absolute -left-1.5 top-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 flex items-center justify-center">
+                        <div className="w-1 h-1 bg-white rounded-full" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Origin</span>
+                          <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-slate-400" /> {ride.departureTime}
+                          </span>
+                        </div>
+                        <p className="text-xs font-medium text-slate-900 truncate">{ride.startLocation?.address}</p>
+                      </div>
+                    </div>
+
+                    <div className="relative flex items-start gap-3 pl-4">
+                      <div className="absolute -left-1.5 top-1 w-3.5 h-3.5 rounded-full bg-sunrise-600 ring-4 ring-orange-100 flex items-center justify-center">
+                        <div className="w-1 h-1 bg-white rounded-full" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-sunrise-800">Destination</span>
+                          <span className="text-xs text-slate-500 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-slate-400" /> {ride.date}
+                          </span>
+                        </div>
+                        <p className="text-xs font-medium text-slate-900 truncate">{ride.destination?.address}</p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Lifecycle & Live Tracking Buttons */}
-                  <div className="pt-2 flex flex-wrap gap-2">
+                  <div className="pt-1 flex flex-wrap gap-2">
                     <Link
                       to={`/rides/${ride._id}/live`}
                       className="flex-1 py-2 px-3 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs flex items-center justify-center gap-1.5 border border-brand-200 transition shadow-xs"
@@ -283,7 +361,7 @@ export const DashboardPage = () => {
                     {ride.status === 'OPEN' && (
                       <button
                         onClick={() => handleStartRide(ride._id)}
-                        className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1 transition"
+                        className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1 transition shadow-xs"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" /> Start
                       </button>
@@ -292,7 +370,7 @@ export const DashboardPage = () => {
                     {ride.status === 'IN_PROGRESS' && (
                       <button
                         onClick={() => handleCompleteRide(ride._id)}
-                        className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-1 transition"
+                        className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-1 transition shadow-xs"
                       >
                         <CheckCheck className="w-3.5 h-3.5" /> Complete
                       </button>
@@ -345,59 +423,87 @@ export const DashboardPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {myBookings.map((b) => (
-              <div key={b._id} className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md transition space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                        b.status === 'CONFIRMED'
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          : b.status === 'CANCELLED'
-                          ? 'bg-red-50 text-red-700 border border-red-200'
-                          : 'bg-sunrise-50 text-sunrise-800 border border-sunrise-200'
-                      }`}
-                    >
-                      {formatBookingStatus(b.status)}
-                    </span>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Driver: <span className="text-slate-800 font-semibold">{b.ride?.driver?.name}</span>
-                    </p>
+              <div key={b._id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-800 font-bold text-xs">
+                      {b.ride?.driver?.name?.charAt(0) || 'D'}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-900">{b.ride?.driver?.name || 'Driver'}</span>
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            b.status === 'CONFIRMED'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : b.status === 'CANCELLED'
+                              ? 'bg-red-50 text-red-700 border border-red-200'
+                              : 'bg-sunrise-50 text-sunrise-800 border border-sunrise-200'
+                          }`}
+                        >
+                          {formatBookingStatus(b.status)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        {b.ride?.driver?.organization || 'Verified commuter'} • {b.seats} seat(s) reserved
+                      </p>
+                    </div>
                   </div>
 
                   <div className="text-right">
                     <span className="text-lg font-black text-slate-900">₹{b.totalPrice}</span>
-                    <span className="text-[11px] text-slate-500 block">{b.seats} seat(s)</span>
+                    <span className="text-[11px] text-slate-500 block">Total fare</span>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <MapPin className="w-3.5 h-3.5 text-brand-600 flex-shrink-0" />
-                    <span className="truncate">{b.pickupPoint?.address}</span>
+                {/* Route Corridor Timeline */}
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3 relative">
+                  <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-slate-200" />
+
+                  <div className="relative flex items-start gap-3 pl-4">
+                    <div className="absolute -left-1.5 top-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 flex items-center justify-center">
+                      <div className="w-1 h-1 bg-white rounded-full" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Pickup</span>
+                        <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-slate-400" /> {b.ride?.departureTime}
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium text-slate-900 truncate">{b.pickupPoint?.address || 'Pickup Point'}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <MapPin className="w-3.5 h-3.5 text-sunrise-700 flex-shrink-0" />
-                    <span className="truncate">{b.dropPoint?.address}</span>
+
+                  <div className="relative flex items-start gap-3 pl-4">
+                    <div className="absolute -left-1.5 top-1 w-3.5 h-3.5 rounded-full bg-sunrise-600 ring-4 ring-orange-100 flex items-center justify-center">
+                      <div className="w-1 h-1 bg-white rounded-full" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-sunrise-800">Drop-off</span>
+                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400" /> {b.ride?.date}
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium text-slate-900 truncate">{b.dropPoint?.address || 'Drop-off Point'}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
-                  <span className="text-slate-500 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" /> {b.ride?.date} at {b.ride?.departureTime}
-                  </span>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+                  <Link
+                    to={`/rides/${b.ride?._id || b.ride}/live`}
+                    className="py-1.5 px-3 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs border border-brand-200 flex items-center gap-1.5 transition shadow-xs"
+                  >
+                    <Radio className="w-3.5 h-3.5 text-brand-700 animate-pulse" /> Live track & chat
+                  </Link>
 
                   <div className="flex items-center gap-2">
-                    <Link
-                      to={`/rides/${b.ride?._id || b.ride}/live`}
-                      className="py-1 px-2.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs border border-brand-200 flex items-center gap-1 transition"
-                    >
-                      <Radio className="w-3 h-3 text-brand-600 animate-pulse" /> Live track & chat
-                    </Link>
-
                     {b.status === 'CONFIRMED' && (
                       <button
                         onClick={() => handleCancelBooking(b._id)}
-                        className="text-xs text-red-600 hover:text-red-700 font-semibold transition"
+                        className="text-xs text-rose-600 hover:text-rose-700 font-semibold transition px-2 py-1"
                       >
                         Cancel
                       </button>
@@ -412,9 +518,9 @@ export const DashboardPage = () => {
                             targetUser: b.ride?.driver || { name: 'Driver', role: 'driver' },
                           })
                         }
-                        className="py-1 px-2.5 rounded-lg bg-sunrise-50 hover:bg-sunrise-100 text-sunrise-800 font-semibold text-xs border border-sunrise-200 flex items-center gap-1 transition"
+                        className="py-1.5 px-3 rounded-xl bg-sunrise-50 hover:bg-sunrise-100 text-sunrise-800 font-semibold text-xs border border-sunrise-200 flex items-center gap-1 transition"
                       >
-                        <Star className="w-3 h-3 fill-sunrise-500 text-sunrise-500" /> Rate driver
+                        <Star className="w-3.5 h-3.5 fill-sunrise-500 text-sunrise-500" /> Rate driver
                       </button>
                     )}
                   </div>

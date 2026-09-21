@@ -444,63 +444,85 @@ export const SearchRidesPage = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-800 font-bold flex items-center justify-center text-sm border border-brand-200">
-                        {ride.driver?.name?.charAt(0) || 'D'}
-                      </div>
-                      <div>
-                        <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                          {ride.driver?.name}
-                          <span className="flex items-center text-xs text-amber-700 font-semibold">
-                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 mr-0.5" />
-                            {ride.driver?.rating?.average?.toFixed(1) || '5.0'}
-                          </span>
-                        </h4>
-                        <p className="text-xs text-slate-500">
-                          {ride.driver?.organization || 'Verified commuter'} • {ride.vehicle?.model} ({ride.vehicle?.registrationNumber})
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-brand-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-brand-50 border border-brand-200 text-brand-800 font-extrabold flex items-center justify-center text-sm shadow-xs">
+                          {ride.driver?.name?.charAt(0) || 'D'}
+                        </div>
                         <div>
-                          <span className="text-xs text-slate-500 font-semibold block">Pickup</span>
-                          <span className="text-slate-900 font-medium">{ride.startLocation?.address}</span>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-base font-bold text-slate-900">
+                              {ride.driver?.name}
+                            </h4>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200">
+                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                              {ride.driver?.rating?.average?.toFixed(1) || '5.0'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                            <span className="text-brand-700 font-medium">{ride.driver?.organization || 'Verified Commuter'}</span>
+                            <span className="text-slate-400">•</span>
+                            <span className="text-slate-700 font-medium flex items-center gap-1">
+                              <Car className="w-3 h-3 text-slate-400" />
+                              {ride.vehicle?.model} ({ride.vehicle?.registrationNumber})
+                            </span>
+                          </p>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-sunrise-700 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <span className="text-xs text-slate-500 font-semibold block">Drop-off</span>
-                          <span className="text-slate-900 font-medium">{ride.destination?.address}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                          {ride.availableSeats} of {ride.totalSeats} seats open
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Route Corridor Timeline */}
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3 relative">
+                      <div className="absolute left-5.5 top-5.5 bottom-5.5 w-0.5 bg-slate-200" />
+
+                      <div className="relative flex items-start gap-3 pl-4">
+                        <div className="absolute -left-1.5 top-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 flex items-center justify-center">
+                          <div className="w-1 h-1 bg-white rounded-full" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Pickup Origin</span>
+                            <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-slate-400" /> {ride.departureTime}
+                            </span>
+                          </div>
+                          <p className="text-xs font-medium text-slate-900 truncate mt-0.5">{ride.startLocation?.address}</p>
+                        </div>
+                      </div>
+
+                      <div className="relative flex items-start gap-3 pl-4">
+                        <div className="absolute -left-1.5 top-1 w-3.5 h-3.5 rounded-full bg-sunrise-600 ring-4 ring-orange-100 flex items-center justify-center">
+                          <div className="w-1 h-1 bg-white rounded-full" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-sunrise-800">Drop-off Destination</span>
+                            <span className="text-xs text-slate-500 flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-slate-400" /> {ride.date}
+                            </span>
+                          </div>
+                          <p className="text-xs font-medium text-slate-900 truncate mt-0.5">{ride.destination?.address}</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" /> {ride.date}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" /> {ride.departureTime}
-                      </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 font-semibold border border-amber-200">
-                        {ride.availableSeats} of {ride.totalSeats} seats left
-                      </span>
-
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-1">
                       {ride.costBreakdown?.fuel > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-                          Fuel ₹{ride.costBreakdown.fuel}{ride.costBreakdown.toll ? ` • Toll ₹${ride.costBreakdown.toll}` : ''}
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium">
+                          Fuel split ₹{ride.costBreakdown.fuel}{ride.costBreakdown.toll ? ` • Toll ₹${ride.costBreakdown.toll}` : ''}
                         </span>
                       )}
 
                       <button
                         type="button"
                         onClick={() => toggleRouteMap(ride._id)}
-                        className="ml-auto text-xs text-brand-700 hover:text-brand-800 font-semibold flex items-center gap-1 transition"
+                        className="ml-auto text-xs text-brand-700 hover:text-brand-800 font-semibold flex items-center gap-1.5 transition px-2.5 py-1 rounded-lg hover:bg-brand-50"
                       >
                         <Map className="w-3.5 h-3.5" />
                         {expandedRouteRideId === ride._id ? 'Hide route map' : 'View route map'}
@@ -510,19 +532,19 @@ export const SearchRidesPage = () => {
                   </div>
 
                   {/* Price & Booking Button */}
-                  <div className="flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-6 gap-3">
-                    <div>
-                      <span className="text-xs text-slate-500 block text-right font-medium">Contribution</span>
+                  <div className="flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-6 gap-4">
+                    <div className="text-left md:text-right">
+                      <span className="text-xs text-slate-500 block font-medium">Shared Cost</span>
                       <span className="text-2xl font-black text-slate-900">₹{ride.estimatedCost}</span>
-                      <span className="text-[11px] text-slate-500 block text-right">per seat</span>
+                      <span className="text-[11px] text-slate-500 block">per seat contribution</span>
                     </div>
 
                     <button
                       onClick={() => handleBook(ride)}
                       disabled={ride.availableSeats === 0 || bookingRideId === ride._id}
-                      className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold text-sm shadow-md shadow-brand-600/20 transition disabled:opacity-40 disabled:pointer-events-none"
+                      className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-sm shadow-md shadow-brand-600/20 transition disabled:opacity-40 disabled:pointer-events-none min-w-[130px]"
                     >
-                      {bookingRideId === ride._id ? 'Reserving...' : ride.availableSeats === 0 ? 'Full' : 'Book seat'}
+                      {bookingRideId === ride._id ? 'Reserving...' : ride.availableSeats === 0 ? 'Full' : 'Request Seat'}
                     </button>
                   </div>
                 </div>

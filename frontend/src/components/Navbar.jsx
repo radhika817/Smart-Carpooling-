@@ -17,7 +17,7 @@ export const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
@@ -41,11 +41,11 @@ export const Navbar = () => {
               to="/search"
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/search')
-                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
+                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
               }`}
             >
-              <Compass className="w-4 h-4 text-emerald-600" />
+              <Compass className="w-4 h-4 text-brand-600" />
               <span>Find ride</span>
             </Link>
 
@@ -55,11 +55,11 @@ export const Navbar = () => {
                   to="/create-ride"
                   className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive('/create-ride')
-                      ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
                   }`}
                 >
-                  <PlusCircle className="w-4 h-4 text-emerald-600" />
+                  <PlusCircle className="w-4 h-4 text-brand-600" />
                   <span>Post ride</span>
                 </Link>
 
@@ -67,8 +67,8 @@ export const Navbar = () => {
                   to="/vehicles"
                   className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive('/vehicles')
-                      ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
                   }`}
                 >
                   <Car className="w-4 h-4 text-sunrise-600" />
@@ -81,11 +81,11 @@ export const Navbar = () => {
               to="/groups"
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/groups') || location.pathname.startsWith('/groups/')
-                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
+                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
               }`}
             >
-              <Users className="w-4 h-4 text-emerald-600" />
+              <Users className="w-4 h-4 text-brand-600" />
               <span>Groups</span>
             </Link>
 
@@ -93,8 +93,8 @@ export const Navbar = () => {
               to="/dashboard"
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/dashboard')
-                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
+                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
               }`}
             >
               <LayoutDashboard className="w-4 h-4 text-slate-600" />
@@ -105,11 +105,11 @@ export const Navbar = () => {
               to="/admin/analytics"
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive('/admin/analytics')
-                  ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-medium'
+                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
               }`}
             >
-              <BarChart3 className="w-4 h-4 text-emerald-600" />
+              <BarChart3 className="w-4 h-4 text-brand-600" />
               <span>Analytics</span>
             </Link>
 
@@ -189,13 +189,13 @@ export const Navbar = () => {
 
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white/98 px-4 pt-3 pb-5 space-y-2 shadow-elevated">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 shadow-elevated">
           <Link
             to="/search"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <Compass className="w-4 h-4 text-emerald-600" />
+            <Compass className="w-4 h-4 text-brand-600" />
             <span>Find ride</span>
           </Link>
 
@@ -206,7 +206,7 @@ export const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
               >
-                <PlusCircle className="w-4 h-4 text-emerald-600" />
+                <PlusCircle className="w-4 h-4 text-brand-600" />
                 <span>Post ride</span>
               </Link>
               <Link
@@ -225,7 +225,7 @@ export const Navbar = () => {
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <Users className="w-4 h-4 text-emerald-600" />
+            <Users className="w-4 h-4 text-brand-600" />
             <span>Carpool groups</span>
           </Link>
 
@@ -243,7 +243,7 @@ export const Navbar = () => {
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
           >
-            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <BarChart3 className="w-4 h-4 text-brand-600" />
             <span>Platform analytics</span>
           </Link>
 
