@@ -40,6 +40,27 @@ export const DashboardPage = () => {
 
   const userId = user?._id || user?.id;
 
+  const formatRideStatus = (status) => {
+    switch (status) {
+      case 'IN_PROGRESS': return 'In progress';
+      case 'COMPLETED': return 'Completed';
+      case 'CANCELLED': return 'Cancelled';
+      case 'OPEN': return 'Open for booking';
+      case 'DRIVER_ARRIVING': return 'Driver arriving';
+      default: return status ? status.replace('_', ' ') : '';
+    }
+  };
+
+  const formatBookingStatus = (status) => {
+    switch (status) {
+      case 'CONFIRMED': return 'Confirmed';
+      case 'CANCELLED': return 'Cancelled';
+      case 'PENDING': return 'Pending';
+      case 'COMPLETED': return 'Completed';
+      default: return status ? status.replace('_', ' ') : '';
+    }
+  };
+
   const loadDashboardData = async () => {
     setLoading(true);
     try {
@@ -132,7 +153,7 @@ export const DashboardPage = () => {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             to="/search"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm border border-slate-200 shadow-2xs transition"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm border border-slate-200 shadow-xs transition"
           >
             <Search className="w-4 h-4 text-brand-600" /> Find a ride
           </Link>
@@ -141,7 +162,7 @@ export const DashboardPage = () => {
             <>
               <Link
                 to="/vehicles"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm border border-slate-200 shadow-2xs transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm border border-slate-200 shadow-xs transition"
               >
                 <Car className="w-4 h-4 text-sunrise-700" /> My vehicles
               </Link>
@@ -217,7 +238,7 @@ export const DashboardPage = () => {
                             : 'bg-sunrise-50 text-sunrise-800 border border-sunrise-200'
                         }`}
                       >
-                        {ride.status}
+                        {formatRideStatus(ride.status)}
                       </span>
                       <p className="text-xs text-slate-500 mt-1">
                         Vehicle: <span className="text-slate-800 font-semibold">{ride.vehicle?.model}</span> ({ride.vehicle?.registrationNumber})
@@ -254,7 +275,7 @@ export const DashboardPage = () => {
                   <div className="pt-2 flex flex-wrap gap-2">
                     <Link
                       to={`/rides/${ride._id}/live`}
-                      className="flex-1 py-2 px-3 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs flex items-center justify-center gap-1.5 border border-brand-200 transition shadow-2xs"
+                      className="flex-1 py-2 px-3 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs flex items-center justify-center gap-1.5 border border-brand-200 transition shadow-xs"
                     >
                       <Radio className="w-3.5 h-3.5 text-brand-700" /> Live track & chat
                     </Link>
@@ -336,7 +357,7 @@ export const DashboardPage = () => {
                           : 'bg-sunrise-50 text-sunrise-800 border border-sunrise-200'
                       }`}
                     >
-                      {b.status}
+                      {formatBookingStatus(b.status)}
                     </span>
                     <p className="text-xs text-slate-500 mt-1">
                       Driver: <span className="text-slate-800 font-semibold">{b.ride?.driver?.name}</span>

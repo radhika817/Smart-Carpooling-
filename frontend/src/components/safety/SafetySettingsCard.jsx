@@ -524,7 +524,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   </div>
                   <button
                     onClick={() => handleDeleteContact(c._id)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                    className="p-1 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition"
                     title="Remove contact"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -594,7 +594,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
                   setUploadError('');
                 }}
                 disabled={uploadingId}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition disabled:opacity-50"
+                className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition disabled:opacity-50"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -758,7 +758,7 @@ export const SafetySettingsCard = ({ currentUser, onUpdate }) => {
               </div>
               <button
                 onClick={handleCloseViewer}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
               >
                 <X className="w-5 h-5" />
               </button>

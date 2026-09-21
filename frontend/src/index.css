@@ -11,6 +11,11 @@
     color: #0F172A;
   }
 
+  ::selection {
+    background-color: #047857;
+    color: #ffffff;
+  }
+
   /* Form controls defaults for high contrast and smooth interactions */
   input, textarea, select {
     color: #0F172A;

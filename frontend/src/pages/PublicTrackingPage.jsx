@@ -143,7 +143,7 @@ export const PublicTrackingPage = () => {
         {/* Top Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center font-black shadow-2xs">
+            <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center font-black shadow-xs">
               SR
             </div>
             <div>
@@ -200,7 +200,13 @@ export const PublicTrackingPage = () => {
                 <span className="text-xs text-slate-500 block font-semibold">Status</span>
                 <span className="inline-flex items-center gap-1.5 text-sm font-black text-emerald-700">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  {telemetry.status}
+                  {telemetry.status === 'IN_PROGRESS'
+                    ? 'In progress'
+                    : telemetry.status === 'DRIVER_ARRIVING'
+                    ? 'Driver arriving'
+                    : telemetry.status === 'COMPLETED'
+                    ? 'Completed'
+                    : telemetry.status?.replace('_', ' ') || 'Active'}
                 </span>
               </div>
               <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm space-y-1">

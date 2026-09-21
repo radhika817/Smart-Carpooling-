@@ -45,7 +45,7 @@ export const HomePage = () => {
             className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]"
           >
             Commute Smarter.{' '}
-            <span className="bg-gradient-to-r from-brand-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+            <span className="text-brand-700">
               Share the Ride.
             </span>{' '}
             Cut Costs.

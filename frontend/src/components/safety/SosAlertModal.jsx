@@ -66,7 +66,7 @@ export const SosAlertModal = ({ rideId, socket, isRideActive = false, userRole =
         type="button"
         id="sos-emergency-trigger-btn"
         onClick={() => setIsOpen(true)}
-        className="relative group px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-red-600/20 transition active:scale-95 border border-red-500/30"
+        className="relative group px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-rose-600/20 transition active:scale-95 border border-rose-500/30"
         title="Emergency SOS Alert"
       >
         <span className="relative flex h-2.5 w-2.5">

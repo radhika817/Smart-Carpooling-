@@ -243,7 +243,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
       {/* Visualizations & Trust Breakdown Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 relative z-10">
         {/* Recharts Monthly History (2 Cols) */}
-        <div className="lg:col-span-2 p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+        <div className="lg:col-span-2 p-5 rounded-xl bg-slate-50/70 border border-slate-200/80 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -336,7 +336,7 @@ export const PersonalAnalyticsCard = ({ user }) => {
         </div>
 
         {/* Rating & Trust Breakdown (1 Col) */}
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div className="p-5 rounded-xl bg-slate-50/70 border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">

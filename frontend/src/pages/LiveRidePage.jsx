@@ -334,13 +334,13 @@ export const LiveRidePage = () => {
 
   if (error || !ride) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center text-red-400">
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center text-red-600">
         <AlertCircle className="w-12 h-12 mx-auto mb-3 text-red-500" />
-        <h3 className="text-lg font-bold text-white">Live Tracking Error</h3>
-        <p className="text-sm text-slate-400 mt-1">{error || 'Ride not found'}</p>
+        <h3 className="text-lg font-bold text-slate-900">Live Tracking Error</h3>
+        <p className="text-sm text-slate-600 mt-1">{error || 'Ride not found'}</p>
         <Link
           to="/dashboard"
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold text-sm"
+          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-xs transition"
         >
           Return to Dashboard
         </Link>
@@ -355,7 +355,7 @@ export const LiveRidePage = () => {
         <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-2xs transition"
+            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-xs transition"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -375,7 +375,7 @@ export const LiveRidePage = () => {
         {/* Status Pill Badge & Safety Actions */}
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-2xs ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-xs ${
               rideStatus === 'IN_PROGRESS'
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 animate-pulse'
                 : rideStatus === 'DRIVER_ARRIVING'
@@ -386,9 +386,15 @@ export const LiveRidePage = () => {
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
-            {rideStatus.replace('_', ' ')}
+            {rideStatus === 'IN_PROGRESS'
+              ? 'In progress'
+              : rideStatus === 'DRIVER_ARRIVING'
+              ? 'Driver arriving'
+              : rideStatus === 'COMPLETED'
+              ? 'Completed'
+              : rideStatus.replace('_', ' ')}
           </span>
-          <span className="text-xs text-slate-600 font-semibold px-2.5 py-1 bg-white rounded-lg border border-slate-200 shadow-2xs">
+          <span className="text-xs text-slate-600 font-semibold px-2.5 py-1 bg-white rounded-lg border border-slate-200 shadow-xs">
             {isDriver ? 'Driver View' : 'Passenger View'}
           </span>
 

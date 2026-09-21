@@ -95,7 +95,7 @@ export const ShareTrackingModal = ({ rideId }) => {
                       type="text"
                       readOnly
                       value={getFullShareUrl()}
-                      className="flex-1 px-2.5 py-1 text-xs bg-transparent text-slate-800 border-none focus:outline-none truncate selection:bg-emerald-200"
+                      className="flex-1 px-2.5 py-1 text-xs bg-transparent text-slate-800 border-none focus:outline-none truncate"
                     />
                     <button
                       type="button"

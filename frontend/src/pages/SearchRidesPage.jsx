@@ -248,7 +248,7 @@ export const SearchRidesPage = () => {
               <label
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition ${
                   communityOnly
-                    ? 'bg-teal-50 border-teal-300 text-teal-800 shadow-2xs'
+                    ? 'bg-teal-50 border-teal-300 text-teal-800 shadow-xs'
                     : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 } ${!user?.organization ? 'opacity-40 cursor-not-allowed' : ''}`}
                 title={user?.organization ? `Filter for ${user.organization} rides` : 'Set your organization in Profile to unlock community filtering'}
@@ -321,7 +321,7 @@ export const SearchRidesPage = () => {
                 {match && (
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-2xs ${badgeColor}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-xs ${badgeColor}`}>
                         <Sparkles className="w-3.5 h-3.5" />
                         {matchPct}% Match
                       </span>
@@ -355,7 +355,7 @@ export const SearchRidesPage = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                       {/* 1. Route Similarity 40% */}
-                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-xs">
                         <div className="flex justify-between text-slate-500 mb-1">
                           <span className="font-semibold text-slate-800">Route Corridor</span>
                           <span className="text-brand-700 font-bold">{match.breakdown.routeSimilarity.points}/40 pts</span>
@@ -370,7 +370,7 @@ export const SearchRidesPage = () => {
                       </div>
 
                       {/* 2. Time Compatibility 25% */}
-                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-xs">
                         <div className="flex justify-between text-slate-500 mb-1">
                           <span className="font-semibold text-slate-800">Departure Time</span>
                           <span className="text-brand-700 font-bold">{match.breakdown.timeCompatibility.points}/25 pts</span>
@@ -385,7 +385,7 @@ export const SearchRidesPage = () => {
                       </div>
 
                       {/* 3. Pickup Proximity 20% */}
-                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-xs">
                         <div className="flex justify-between text-slate-500 mb-1">
                           <span className="font-semibold text-slate-800">Pickup Proximity</span>
                           <span className="text-brand-700 font-bold">{match.breakdown.pickupProximity.points}/20 pts</span>
@@ -400,7 +400,7 @@ export const SearchRidesPage = () => {
                       </div>
 
                       {/* 4. Destination Proximity 15% */}
-                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                      <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-xs">
                         <div className="flex justify-between text-slate-500 mb-1">
                           <span className="font-semibold text-slate-800">Drop-off Proximity</span>
                           <span className="text-brand-700 font-bold">{match.breakdown.destinationProximity.points}/15 pts</span>
@@ -487,7 +487,7 @@ export const SearchRidesPage = () => {
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-slate-400" /> {ride.departureTime}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-800 font-semibold border border-brand-200">
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 font-semibold border border-amber-200">
                         {ride.availableSeats} of {ride.totalSeats} seats left
                       </span>
 

@@ -148,7 +148,7 @@ export const VehiclesPage = () => {
                   </span>
                   <button
                     onClick={() => handleDelete(v._id)}
-                    className="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition"
+                    className="text-slate-500 hover:text-red-600 p-1.5 rounded-lg hover:bg-slate-100 transition"
                     title="Delete vehicle"
                   >
                     <Trash2 className="w-4 h-4" />

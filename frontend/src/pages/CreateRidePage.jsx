@@ -620,7 +620,7 @@ export const CreateRidePage = () => {
                           }}
                           className={`py-2 text-xs font-bold rounded-xl border transition ${
                             isSelected
-                              ? 'bg-purple-50 border-purple-300 text-purple-800 shadow-2xs'
+                              ? 'bg-purple-50 border-purple-300 text-purple-800 shadow-xs'
                               : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                           }`}
                         >
