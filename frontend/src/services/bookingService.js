@@ -28,6 +28,11 @@ export const bookingService = {
 
   async getDriverBookings() {
     const res = await api.get('/bookings/driver');
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
+  },
+
+  async getBookingsByRide(rideId) {
+    const res = await api.get(`/rides/${rideId}/bookings`);
+    return res?.data !== undefined ? res.data : res;
   },
 };

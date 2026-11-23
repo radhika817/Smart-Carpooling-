@@ -64,7 +64,8 @@ export const AdminDashboardPage = () => {
     try {
       setLoadingOverview(true);
       const res = await adminService.getOverview();
-      setOverview(res.data);
+      const data = res?.stats ? res : (res?.data || res);
+      setOverview(data);
     } catch (err) {
       showFeedback('error', err.message || 'Failed to load system overview');
     } finally {
@@ -83,7 +84,8 @@ export const AdminDashboardPage = () => {
       if (userStatusFilter === 'active') params.isSuspended = 'false';
 
       const res = await adminService.getUsers(params);
-      setUsers(res.data.users || []);
+      const data = res?.users ? res : (res?.data || res);
+      setUsers(data?.users || []);
     } catch (err) {
       showFeedback('error', err.message || 'Failed to fetch platform users');
     } finally {
@@ -98,7 +100,8 @@ export const AdminDashboardPage = () => {
       const params = {};
       if (rideStatusFilter !== 'all') params.status = rideStatusFilter;
       const res = await adminService.getRides(params);
-      setRides(res.data.rides || []);
+      const data = res?.rides ? res : (res?.data || res);
+      setRides(data?.rides || []);
     } catch (err) {
       showFeedback('error', err.message || 'Failed to fetch platform rides');
     } finally {
@@ -113,7 +116,8 @@ export const AdminDashboardPage = () => {
       const params = {};
       if (sosStatusFilter !== 'all') params.status = sosStatusFilter;
       const res = await adminService.getSosAlerts(params);
-      setSosAlerts(res.data || []);
+      const data = Array.isArray(res) ? res : (res?.data || []);
+      setSosAlerts(Array.isArray(data) ? data : []);
     } catch (err) {
       showFeedback('error', err.message || 'Failed to load safety alerts');
     } finally {

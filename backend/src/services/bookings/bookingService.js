@@ -19,6 +19,41 @@ export const createBooking = async ({ rideId, passengerId, pickupPoint, dropPoin
     throw error;
   }
 
+  if (!['OPEN', 'BOOKING'].includes(ride.status)) {
+    const error = new Error(`Cannot book seats on a ride with status ${ride.status}.`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Verify community / organization restriction
+  if (ride.communityScope?.isRestricted) {
+    const { User } = await import('../../models/User.js');
+    const passengerUser = await User.findById(passengerId);
+    const passOrg = passengerUser?.organization?.toLowerCase().trim();
+    const rideOrg = ride.communityScope.organization?.toLowerCase().trim();
+    if (!passOrg || passOrg !== rideOrg) {
+      const error = new Error(`Forbidden: This ride is restricted to members of ${ride.communityScope.organization}.`);
+      error.statusCode = 403;
+      throw error;
+    }
+  }
+
+  // Verify carpool group restriction
+  if (ride.carpoolGroup) {
+    const { CarpoolGroup } = await import('../../models/CarpoolGroup.js');
+    const group = await CarpoolGroup.findById(ride.carpoolGroup);
+    if (group) {
+      const isMember = group.members.some(
+        (m) => (m.user?._id || m.user).toString() === passengerIdStr
+      );
+      if (!isMember) {
+        const error = new Error('Forbidden: This ride is restricted to members of this carpool group.');
+        error.statusCode = 403;
+        throw error;
+      }
+    }
+  }
+
   // 2. Atomic seat decrement — prevents overbooking under concurrent requests
   // Uses a single conditional findOneAndUpdate with $gte guard and $inc
   await rideService.decrementSeatsAtomic(rideId, seatCount);
@@ -134,6 +169,18 @@ export const rejectBooking = async (bookingId, driverId) => {
     throw error;
   }
 
+  if (booking.status === 'REJECTED' || booking.status === 'CANCELLED') {
+    const error = new Error(`Booking is already ${booking.status.toLowerCase()}.`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (booking.status === 'COMPLETED') {
+    const error = new Error('Cannot reject a completed booking.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   if (booking.status === 'CONFIRMED' || booking.status === 'PENDING') {
     // Restore seats atomically
     await rideService.restoreSeatsAtomic(booking.ride._id, booking.seats);
@@ -148,7 +195,7 @@ export const rejectBooking = async (bookingId, driverId) => {
  * Cancel a booking and restore reserved seats atomically
  */
 export const cancelBooking = async (bookingId, passengerId) => {
-  const booking = await Booking.findById(bookingId);
+  const booking = await Booking.findById(bookingId).populate('ride');
   if (!booking) {
     const error = new Error('Booking not found.');
     error.statusCode = 404;
@@ -167,8 +214,29 @@ export const cancelBooking = async (bookingId, passengerId) => {
     throw error;
   }
 
-  // Restore seats atomically
-  await rideService.restoreSeatsAtomic(booking.ride, booking.seats);
+  if (booking.status === 'REJECTED') {
+    const error = new Error('Cannot cancel a booking that has already been rejected.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (booking.status === 'COMPLETED') {
+    const error = new Error('Cannot cancel a completed booking.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (booking.ride && ['COMPLETED', 'CANCELLED'].includes(booking.ride.status)) {
+    const error = new Error(`Cannot cancel booking on a ${booking.ride.status.toLowerCase()} ride.`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Restore seats atomically only if it was previously active (PENDING or CONFIRMED)
+  if (['CONFIRMED', 'PENDING'].includes(booking.status)) {
+    const rideId = booking.ride?._id || booking.ride;
+    await rideService.restoreSeatsAtomic(rideId, booking.seats);
+  }
 
   booking.status = 'CANCELLED';
   await booking.save();
@@ -183,6 +251,12 @@ export const markBookingAsPaid = async (bookingId, driverId) => {
   if (!booking) {
     const error = new Error('Booking not found.');
     error.statusCode = 404;
+    throw error;
+  }
+
+  if (['CANCELLED', 'REJECTED'].includes(booking.status)) {
+    const error = new Error(`Cannot mark a ${booking.status.toLowerCase()} booking as paid.`);
+    error.statusCode = 400;
     throw error;
   }
 

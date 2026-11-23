@@ -116,7 +116,8 @@ export const CreateRidePage = () => {
         if (vehiclesData && vehiclesData.length > 0) {
           setFormData((prev) => ({ ...prev, vehicleId: vehiclesData[0]._id }));
         }
-        setCarpoolGroups(groupsRes?.data || []);
+        const groupsList = Array.isArray(groupsRes) ? groupsRes : (groupsRes?.data || []);
+        setCarpoolGroups(groupsList);
       } catch (err) {
         setError('Failed to fetch initial data. Please ensure you are logged in.');
       } finally {
@@ -180,6 +181,12 @@ export const CreateRidePage = () => {
 
     if (!formData.vehicleId) {
       setError('Please select or register a vehicle first.');
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    if (formData.date < today) {
+      setError('Departure date cannot be in the past.');
       return;
     }
 
@@ -360,6 +367,7 @@ export const CreateRidePage = () => {
                 <input
                   type="date"
                   name="date"
+                  min={new Date().toISOString().split('T')[0]}
                   required
                   value={formData.date}
                   onChange={handleChange}

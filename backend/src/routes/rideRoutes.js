@@ -39,6 +39,7 @@ router.get('/:id/messages', requireAuth, rideController.getMessages);
 
 // Booking a seat on a ride (/api/rides/:id/book per §6 API contract)
 router.post('/:id/book', requireAuth, validate(bookingController.bookSeatSchema), bookingController.bookSeat);
+router.get('/:id/bookings', requireAuth, bookingController.getBookingsByRide);
 
 // Phase 6 Safety Features: SOS Emergency Trigger & Time-Boxed Share Tracking
 router.post('/:id/sos', requireAuth, safetyController.triggerSos);

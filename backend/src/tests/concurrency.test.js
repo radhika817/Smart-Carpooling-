@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'test';
+
 import { connectDB, disconnectDB } from '../utils/db.js';
 import * as authService from '../services/auth/authService.js';
 import * as vehicleService from '../services/vehicles/vehicleService.js';

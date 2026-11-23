@@ -2,6 +2,8 @@ import { User } from '../models/User.js';
 import { Ride } from '../models/Ride.js';
 import { SosAlert } from '../models/SosAlert.js';
 import { CarpoolGroup } from '../models/CarpoolGroup.js';
+import { Booking } from '../models/Booking.js';
+import { broadcastToRide } from '../socket/index.js';
 
 /**
  * High-level system overview KPIs for the admin console
@@ -283,6 +285,20 @@ export const cancelRide = async (req, res, next) => {
     ride.status = 'CANCELLED';
     ride.notes = `${ride.notes ? ride.notes + ' | ' : ''}[ADMIN CANCELLED]: ${reason || 'Administrative intervention'}`;
     await ride.save();
+
+    // Cancel all active passenger bookings for this ride
+    await Booking.updateMany(
+      { ride: id, status: { $in: ['CONFIRMED', 'PENDING'] } },
+      { $set: { status: 'CANCELLED' } }
+    );
+
+    // Notify connected participants
+    broadcastToRide(id, 'ride:status', {
+      rideId: id.toString(),
+      status: 'CANCELLED',
+      message: `Ride cancelled by administrator: ${reason || 'Administrative intervention'}`,
+      timestamp: Date.now(),
+    });
 
     return res.status(200).json({
       success: true,

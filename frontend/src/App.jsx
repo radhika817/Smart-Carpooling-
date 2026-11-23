@@ -74,7 +74,7 @@ export function App() {
               <Route
                 path="admin/analytics"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['admin']}>
                     <AdminAnalyticsPage />
                   </ProtectedRoute>
                 }
@@ -82,7 +82,7 @@ export function App() {
               <Route
                 path="analytics"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['admin']}>
                     <AdminAnalyticsPage />
                   </ProtectedRoute>
                 }

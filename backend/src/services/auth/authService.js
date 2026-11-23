@@ -1,9 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../../models/User.js';
-
-const getJwtSecret = () => process.env.JWT_SECRET || 'smartride_fallback_jwt_secret_key';
-const getJwtExpiresIn = () => process.env.JWT_EXPIRES_IN || '7d';
+import { getJwtSecret, getJwtExpiresIn } from '../../config/jwt.js';
 
 export const generateToken = (user) => {
   return jwt.sign(

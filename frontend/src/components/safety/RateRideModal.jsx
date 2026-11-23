@@ -7,8 +7,12 @@ export const RateRideModal = ({
   onClose,
   rideId,
   targetUser,
+  passengers = [],
   onSuccess,
 }) => {
+  const [selectedPassengerId, setSelectedPassengerId] = useState(
+    targetUser?._id || targetUser?.id || (passengers[0]?._id || passengers[0]?.id || '')
+  );
   const [overall, setOverall] = useState(5);
   const [punctuality, setPunctuality] = useState(5);
   const [safety, setSafety] = useState(5);
@@ -19,7 +23,23 @@ export const RateRideModal = ({
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
+  // Sync selected passenger if targetUser or passengers change
+  React.useEffect(() => {
+    if (targetUser?._id || targetUser?.id) {
+      setSelectedPassengerId(targetUser._id || targetUser.id);
+    } else if (passengers.length > 0) {
+      setSelectedPassengerId(passengers[0]._id || passengers[0].id);
+    }
+  }, [targetUser, passengers]);
+
   if (!isOpen) return null;
+
+  const effectiveTarget =
+    passengers.find((p) => (p._id || p.id) === selectedPassengerId) ||
+    targetUser ||
+    passengers[0];
+
+  const targetId = effectiveTarget?._id || effectiveTarget?.id;
 
   const categories = [
     { key: 'overall', label: 'Overall experience', value: overall, setter: setOverall, desc: 'Your general satisfaction with this trip' },
@@ -31,13 +51,18 @@ export const RateRideModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!targetId) {
+      setError('No target passenger/driver specified to review.');
+      return;
+    }
+
     setSubmitting(true);
     setError('');
 
     try {
       await reviewService.createReview({
         rideId,
-        toUserId: targetUser?.id || targetUser?._id,
+        toUserId: targetId,
         overall,
         punctuality,
         safety,
@@ -70,7 +95,7 @@ export const RateRideModal = ({
             <div>
               <h3 className="text-lg font-bold text-slate-900">Rate your ride experience</h3>
               <p className="text-xs text-slate-500">
-                Reviewing <strong>{targetUser?.name || 'Ride Member'}</strong> ({targetUser?.role || 'member'})
+                Reviewing <strong>{effectiveTarget?.name || 'Ride Member'}</strong> ({effectiveTarget?.role || 'member'})
               </p>
             </div>
           </div>
@@ -101,6 +126,34 @@ export const RateRideModal = ({
               </div>
             )}
 
+            {passengers && passengers.length > 1 && (
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Select Passenger to Review
+                </label>
+                <select
+                  value={selectedPassengerId}
+                  onChange={(e) => setSelectedPassengerId(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20"
+                >
+                  {passengers.map((p) => {
+                    const pId = p._id || p.id;
+                    return (
+                      <option key={pId} value={pId}>
+                        {p.name} ({p.email || 'Passenger'})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
+
+            {!targetId && (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                No passenger or driver was found on this ride to review.
+              </div>
+            )}
+
             {/* 5 Categories Star Ratings */}
             <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
               {categories.map((cat) => (
@@ -119,11 +172,10 @@ export const RateRideModal = ({
                         className="p-1 hover:scale-110 transition active:scale-95"
                       >
                         <Star
-                          className={`w-4 h-4 ${
-                            star <= cat.value
+                          className={`w-4 h-4 ${star <= cat.value
                               ? 'text-sunrise-500 fill-sunrise-500'
                               : 'text-slate-300'
-                          }`}
+                            }`}
                         />
                       </button>
                     ))}

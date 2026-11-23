@@ -126,7 +126,15 @@ export const deleteEmergencyContact = async (req, res, next) => {
 
 export const updateVerification = async (req, res, next) => {
   try {
-    const userId = req.user._id || req.user.id;
+    // Security Guardrail: Regular users cannot manually self-verify badges.
+    // Manual verification status overrides require administrator privileges.
+    if (req.user.role !== 'admin') {
+      const error = new Error('Forbidden: Manual verification status overrides require administrator privileges.');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const userId = req.body.userId || req.user._id || req.user.id;
     const { email, phone, organization, govtId } = req.body;
 
     const user = await User.findById(userId);

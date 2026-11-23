@@ -113,3 +113,18 @@ export const getDriverBookings = async (req, res, next) => {
   }
 };
 
+export const getBookingsByRide = async (req, res, next) => {
+  try {
+    const bookings = await bookingService.getBookingsByRide(
+      req.params.id,
+      req.user._id || req.user.id
+    );
+    return res.status(200).json({
+      success: true,
+      data: bookings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

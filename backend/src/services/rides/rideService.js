@@ -1,19 +1,38 @@
 import crypto from 'crypto';
 import { Ride } from '../../models/Ride.js';
+import { Booking } from '../../models/Booking.js';
+import { CarpoolGroup } from '../../models/CarpoolGroup.js';
+import { broadcastToRide } from '../../socket/index.js';
 import * as vehicleService from '../vehicles/vehicleService.js';
 
 /**
  * Atomic seat decrement (system.md §3.5)
- * Single conditional update with $gte guard and $inc, preventing double-booking race conditions.
+ * Single conditional update with $gte guard, valid ride status check, and $inc,
+ * preventing double-booking and invalid-ride race conditions.
  */
 export const decrementSeatsAtomic = async (rideId, requestedSeats) => {
   const ride = await Ride.findOneAndUpdate(
-    { _id: rideId, availableSeats: { $gte: requestedSeats } },
+    {
+      _id: rideId,
+      status: { $in: ['OPEN', 'BOOKING'] },
+      availableSeats: { $gte: requestedSeats },
+    },
     { $inc: { availableSeats: -requestedSeats } },
     { new: true }
   );
 
   if (!ride) {
+    const existing = await Ride.findById(rideId);
+    if (!existing) {
+      const error = new Error('Ride not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (!['OPEN', 'BOOKING'].includes(existing.status)) {
+      const error = new Error(`Cannot book seats on a ride with status: ${existing.status}`);
+      error.statusCode = 400;
+      throw error;
+    }
     const error = new Error('Not enough seats available');
     error.statusCode = 409;
     throw error;
@@ -24,11 +43,19 @@ export const decrementSeatsAtomic = async (rideId, requestedSeats) => {
 
 /**
  * Atomic seat restoration (upon booking rejection or cancellation)
+ * Guarded so that availableSeats can never exceed totalSeats.
  */
 export const restoreSeatsAtomic = async (rideId, seatsToRestore) => {
+  const currentRide = await Ride.findById(rideId);
+  if (!currentRide) return null;
+
+  const maxRestorable = Math.max(0, currentRide.totalSeats - currentRide.availableSeats);
+  const restoreAmount = Math.min(seatsToRestore, maxRestorable);
+  if (restoreAmount <= 0) return currentRide;
+
   const ride = await Ride.findByIdAndUpdate(
     rideId,
-    { $inc: { availableSeats: seatsToRestore } },
+    { $inc: { availableSeats: restoreAmount } },
     { new: true }
   );
   return ride;
@@ -60,6 +87,16 @@ export const createRide = async ({
     const error = new Error('Forbidden: You can only create rides using your own vehicle.');
     error.statusCode = 403;
     throw error;
+  }
+
+  // Prevent creation of rides with past departure dates (allow in test environment if needed)
+  if (process.env.NODE_ENV !== 'test' && date) {
+    const today = new Date().toISOString().split('T')[0];
+    if (date < today) {
+      const error = new Error('Departure date cannot be in the past');
+      error.statusCode = 400;
+      throw error;
+    }
   }
 
   // Handle Recurring Ride Series Generation (Phase 8)
@@ -389,8 +426,28 @@ export const cancelRide = async (rideId, driverId, options = {}) => {
       { $set: { status: 'CANCELLED' } }
     );
 
+    // Cancel all active passenger bookings for these cancelled series rides
+    const seriesRides = await Ride.find({
+      driver: driverId,
+      'recurrence.recurringGroupId': ride.recurrence.recurringGroupId,
+      date: { $gte: ride.date },
+    }).select('_id');
+    const seriesRideIds = seriesRides.map((r) => r._id);
+
+    await Booking.updateMany(
+      { ride: { $in: seriesRideIds }, status: { $in: ['CONFIRMED', 'PENDING'] } },
+      { $set: { status: 'CANCELLED' } }
+    );
+
     ride.status = 'CANCELLED';
     await ride.save();
+
+    broadcastToRide(rideId, 'ride:status', {
+      rideId: rideId.toString(),
+      status: 'CANCELLED',
+      message: 'This recurring ride series has been cancelled by the driver.',
+      timestamp: Date.now(),
+    });
 
     const json = ride.toJSON();
     json.seriesCancelled = true;
@@ -398,8 +455,23 @@ export const cancelRide = async (rideId, driverId, options = {}) => {
     return json;
   }
 
+  // Single ride cancellation: update active passenger bookings to CANCELLED
+  await Booking.updateMany(
+    { ride: rideId, status: { $in: ['CONFIRMED', 'PENDING'] } },
+    { $set: { status: 'CANCELLED' } }
+  );
+
   ride.status = 'CANCELLED';
   await ride.save();
+
+  // Broadcast cancellation to connected ride participants
+  broadcastToRide(rideId, 'ride:status', {
+    rideId: rideId.toString(),
+    status: 'CANCELLED',
+    message: 'This ride has been cancelled by the driver.',
+    timestamp: Date.now(),
+  });
+
   return ride;
 };
 

@@ -49,7 +49,17 @@ export const createRideSchema = z.object({
     })
     .optional(),
   carpoolGroup: z.string().optional().nullable(),
-});
+}).refine(
+  (data) => {
+    if (process.env.NODE_ENV === 'test') return true;
+    const today = new Date().toISOString().split('T')[0];
+    return data.date >= today;
+  },
+  {
+    message: 'Departure date cannot be in the past',
+    path: ['date'],
+  }
+);
 
 export const updateRideSchema = z.object({
   departureTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
