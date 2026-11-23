@@ -41,8 +41,10 @@ export const CarpoolGroupDetailPage = () => {
         groupService.getGroupById(id),
         groupService.getGroupRides(id),
       ]);
-      setGroup(groupRes.data);
-      setRides(ridesRes.data || []);
+      const groupData = groupRes?.data !== undefined && groupRes?.data !== null ? groupRes.data : groupRes;
+      const ridesData = Array.isArray(ridesRes) ? ridesRes : (ridesRes?.data || []);
+      setGroup(groupData);
+      setRides(ridesData);
     } catch (err) {
       setFeedback({ type: 'error', message: err.message || 'Failed to load group details' });
     } finally {

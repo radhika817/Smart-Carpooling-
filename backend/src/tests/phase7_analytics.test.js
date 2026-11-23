@@ -281,8 +281,16 @@ async function runPhase7AnalyticsTests() {
     assert.strictEqual(trend.trips, 1);
     console.log('  ✅ Monthly trend entry matches Recharts requirements\n');
 
-    // 7. Test Admin Analytics
+    // 7. Test Admin Analytics Role Authorization & Aggregation
     console.log('Test 7: Admin Analytics aggregation and corridor metrics');
+    const nonAdminRes = await request('/api/analytics/admin', {
+      headers: { Authorization: `Bearer ${driverToken}` },
+    });
+    assert.strictEqual(nonAdminRes.status, 403, 'Non-admin must be blocked from platform-wide analytics');
+    console.log('  ✅ Non-admin correctly rejected (403) from /api/analytics/admin');
+
+    // Elevate driver to admin for authorized verification
+    await User.findByIdAndUpdate(driverUser.id, { role: 'admin' });
     const adminAnalytics = await request('/api/analytics/admin', {
       headers: { Authorization: `Bearer ${driverToken}` },
     });

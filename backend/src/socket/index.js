@@ -1,6 +1,8 @@
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import { Ride } from '../models/Ride.js';
+import { getJwtSecret } from '../config/jwt.js';
 import { verifyParticipant, saveMessage } from '../services/chat/chatService.js';
 import { haversineDistanceKm } from '../services/matching/matchingService.js';
 
@@ -65,16 +67,44 @@ export const initSocket = (httpServer, clientUrl) => {
         token = token.slice(7).trim();
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key');
+      // 1. Check if token is a public shareToken for time-boxed live tracking
+      const ride = await Ride.findById(rideId);
+      if (!ride) {
+        return next(new Error('Ride not found'));
+      }
+
+      if (ride.shareToken && ride.shareToken === token) {
+        if (!ride.shareExpiresAt || new Date() > new Date(ride.shareExpiresAt)) {
+          return next(new Error('Tracking link has expired'));
+        }
+        if (['COMPLETED', 'CANCELLED'].includes(ride.status)) {
+          return next(new Error('Ride tracking has concluded'));
+        }
+
+        // Attach read-only viewer context
+        socket.userId = `viewer_${socket.id}`;
+        socket.userName = 'Family / Friend Viewer';
+        socket.userRole = 'viewer';
+        socket.rideId = rideId;
+        socket.rideDestination = ride.destination?.coordinates;
+        return next();
+      }
+
+      // 2. Otherwise verify JWT authentication for registered driver/passenger
+      const decoded = jwt.verify(token, getJwtSecret());
       const userId = decoded.id || decoded.userId || decoded._id;
 
-      const user = await User.findById(userId).select('name email role');
+      const user = await User.findById(userId).select('name email role isSuspended');
       if (!user) {
         return next(new Error('User not found'));
       }
 
+      if (user.isSuspended) {
+        return next(new Error('Account suspended'));
+      }
+
       // Verify that connecting user is an active participant in this ride
-      const { isParticipant, role, ride } = await verifyParticipant(rideId, userId);
+      const { isParticipant, role } = await verifyParticipant(rideId, userId);
       if (!isParticipant) {
         return next(new Error('Forbidden: You are not an active participant of this ride'));
       }
@@ -145,6 +175,11 @@ export const initSocket = (httpServer, clientUrl) => {
     // 2. In-Ride Chat Messaging
     socket.on('chat:message', async (data = {}) => {
       try {
+        if (socket.userRole === 'viewer') {
+          socket.emit('error', { message: 'Viewers have read-only access and cannot post in ride chat.' });
+          return;
+        }
+
         const { text } = data;
         if (!text || !text.trim()) return;
 
@@ -193,6 +228,11 @@ export const initSocket = (httpServer, clientUrl) => {
     // 4. Emergency SOS Trigger
     socket.on('sos:trigger', async (data = {}) => {
       try {
+        if (socket.userRole === 'viewer') {
+          socket.emit('error', { message: 'Only verified ride participants can trigger emergency SOS.' });
+          return;
+        }
+
         const { coordinates, address } = data;
         const { triggerSos } = await import('../services/safety/safetyService.js');
         const result = await triggerSos({

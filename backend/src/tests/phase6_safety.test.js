@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'test';
+
 import http from 'http';
 import assert from 'node:assert';
 import { app } from '../server.js';
@@ -209,7 +211,7 @@ async function runPhase6SafetyTests() {
     assert.strictEqual(delContactRes.data.data.contacts.length, 1);
     console.log('  ✓ Emergency contact deleted successfully (count = 1)');
 
-    // Update Verification Status
+    // Update Verification Status: regular passenger must be rejected (403)
     const verifyRes = await request('/api/users/verify', {
       method: 'POST',
       headers: { Authorization: `Bearer ${passengerToken}` },
@@ -220,9 +222,21 @@ async function runPhase6SafetyTests() {
         govtId: true,
       },
     });
-    assert.strictEqual(verifyRes.status, 200);
-    assert.strictEqual(verifyRes.data.data.verificationStatus.govtId, true);
-    assert.strictEqual(verifyRes.data.data.verificationStatus.organization, true);
+    assert.strictEqual(verifyRes.status, 403);
+    console.log('  ✓ Regular user self-verification override correctly blocked (403)');
+
+    // Direct database/admin update for test badge setup
+    await User.findByIdAndUpdate(passengerUser.id, {
+      verificationStatus: {
+        email: true,
+        phone: true,
+        organization: true,
+        govtId: true,
+      },
+    });
+    const updatedPassenger = await User.findById(passengerUser.id);
+    assert.strictEqual(updatedPassenger.verificationStatus.govtId, true);
+    assert.strictEqual(updatedPassenger.verificationStatus.organization, true);
     console.log('✅ Emergency Contacts & Verification Badges passed\n');
 
     // =========================================================================

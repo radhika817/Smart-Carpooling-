@@ -396,12 +396,19 @@ export const DashboardPage = () => {
 
                     {ride.status === 'COMPLETED' && (
                       <button
-                        onClick={() =>
+                        onClick={() => {
+                          const rideBookings = driverBookings.filter(
+                            (db) => (db.ride?._id || db.ride) === ride._id
+                          );
+                          const passengers = rideBookings
+                            .map((b) => b.passenger)
+                            .filter(Boolean);
                           setActiveRating({
                             rideId: ride._id,
-                            targetUser: { name: 'Ride Passenger', role: 'passenger' },
-                          })
-                        }
+                            passengers,
+                            targetUser: passengers[0] || null,
+                          });
+                        }}
                         className="py-2 px-3 rounded-xl bg-sunrise-50 hover:bg-sunrise-100 text-sunrise-800 border border-sunrise-200 text-xs font-semibold flex items-center justify-center gap-1 transition"
                       >
                         <Star className="w-3.5 h-3.5 fill-sunrise-500 text-sunrise-500" /> Rate passenger
@@ -630,6 +637,7 @@ export const DashboardPage = () => {
         isOpen={!!activeRating}
         onClose={() => setActiveRating(null)}
         rideId={activeRating?.rideId}
+        passengers={activeRating?.passengers || []}
         targetUser={activeRating?.targetUser}
         onSuccess={loadDashboardData}
       />

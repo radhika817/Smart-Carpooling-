@@ -31,7 +31,17 @@ export const connectDB = async () => {
     if (!mongod) {
       console.log('No MONGODB_URI provided in environment. Initializing local MongoDB Memory Server...');
       const { MongoMemoryServer } = await import('mongodb-memory-server');
-      mongod = await MongoMemoryServer.create();
+      const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const __dirname = path.dirname(fileURLToPath(import.meta.url));
+      const backendDir = path.resolve(__dirname, '../..');
+      const localCacheDir = path.join(backendDir, 'node_modules', '.cache', 'mongodb-memory-server');
+
+      mongod = await MongoMemoryServer.create({
+        binary: {
+          downloadDir: process.env.MONGOMS_DOWNLOAD_DIR || localCacheDir,
+        },
+      });
     }
     const memoryUri = mongod.getUri();
 

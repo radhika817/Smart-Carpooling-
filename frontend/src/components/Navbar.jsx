@@ -101,17 +101,19 @@ export const Navbar = () => {
               <span>Dashboard</span>
             </Link>
 
-            <Link
-              to="/admin/analytics"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive('/admin/analytics')
-                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
-              }`}
-            >
-              <BarChart3 className="w-4 h-4 text-brand-600" />
-              <span>Analytics</span>
-            </Link>
+            {user?.role === 'admin' && (
+              <Link
+                to="/admin/analytics"
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive('/admin/analytics')
+                    ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4 text-brand-600" />
+                <span>Analytics</span>
+              </Link>
+            )}
 
             {user?.role === 'admin' && (
               <Link
@@ -238,14 +240,16 @@ export const Navbar = () => {
             <span>Dashboard</span>
           </Link>
 
-          <Link
-            to="/admin/analytics"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
-          >
-            <BarChart3 className="w-4 h-4 text-brand-600" />
-            <span>Platform analytics</span>
-          </Link>
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin/analytics"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+            >
+              <BarChart3 className="w-4 h-4 text-brand-600" />
+              <span>Platform analytics</span>
+            </Link>
+          )}
 
           {user?.role === 'admin' && (
             <Link

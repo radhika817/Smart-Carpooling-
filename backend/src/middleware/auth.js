@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import { getJwtSecret } from '../config/jwt.js';
 
 export const requireAuth = async (req, res, next) => {
   try {
@@ -12,15 +13,21 @@ export const requireAuth = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'smartride_fallback_jwt_secret_key';
-
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, getJwtSecret());
     const user = await User.findById(decoded.id);
 
     if (!user) {
       return res.status(401).json({
         success: false,
         message: 'User belonging to this token no longer exists.',
+      });
+    }
+
+    if (user.isSuspended) {
+      const reason = user.suspendedReason ? `: ${user.suspendedReason}` : '';
+      return res.status(403).json({
+        success: false,
+        message: `Your account has been suspended by an administrator${reason}`,
       });
     }
 
@@ -64,10 +71,9 @@ export const optionalAuth = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const secret = process.env.JWT_SECRET || 'smartride_fallback_jwt_secret_key';
-      const decoded = jwt.verify(token, secret);
+      const decoded = jwt.verify(token, getJwtSecret());
       const user = await User.findById(decoded.id);
-      if (user) {
+      if (user && !user.isSuspended) {
         req.user = user;
       }
     }
@@ -76,4 +82,3 @@ export const optionalAuth = async (req, res, next) => {
   }
   next();
 };
-

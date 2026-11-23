@@ -56,7 +56,8 @@ export const CarpoolGroupsPage = () => {
       if (search.trim()) params.search = search.trim();
       if (myGroupsOnly) params.myGroups = 'true';
       const res = await groupService.getGroups(params);
-      setGroups(res.data || []);
+      const groupsList = Array.isArray(res) ? res : (res?.data || []);
+      setGroups(groupsList);
     } catch (err) {
       console.error('Failed to load groups:', err);
     } finally {
@@ -86,8 +87,9 @@ export const CarpoolGroupsPage = () => {
         scheduleDescription: formData.scheduleDescription.trim(),
         isPrivate: formData.isPrivate,
       });
+      const groupObj = res?.data || res;
       setCreateModalOpen(false);
-      navigate(`/groups/${res.data._id}`);
+      navigate(`/groups/${groupObj?._id || groupObj?.id}`);
     } catch (err) {
       setFormError(err.message || 'Failed to create group');
     } finally {
@@ -104,9 +106,10 @@ export const CarpoolGroupsPage = () => {
     try {
       setJoinError('');
       const res = await groupService.joinByCode(inviteCodeInput.trim());
+      const groupObj = res?.data || res;
       setJoinCodeModalOpen(false);
       setInviteCodeInput('');
-      navigate(`/groups/${res.data._id}`);
+      navigate(`/groups/${groupObj?._id || groupObj?.id}`);
     } catch (err) {
       setJoinError(err.message || 'Failed to join group with this code.');
     }

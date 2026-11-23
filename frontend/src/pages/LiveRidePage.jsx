@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import L from 'leaflet';
 import { rideService } from '../services/rideService';
+import { bookingService } from '../services/bookingService';
 import { useAuth } from '../context/AuthContext';
 import { connectRideSocket } from '../services/socket';
 import { InRideChat } from '../components/chat/InRideChat';
@@ -77,6 +78,7 @@ export const LiveRidePage = () => {
   const [rideStatus, setRideStatus] = useState('CONFIRMED');
   const [statusNotification, setStatusNotification] = useState('');
   const [showRateModal, setShowRateModal] = useState(false);
+  const [passengers, setPassengers] = useState([]);
 
   // Simulation controls (for Driver)
   const [isSimulating, setIsSimulating] = useState(false);
@@ -163,6 +165,14 @@ export const LiveRidePage = () => {
         setStatusNotification(statusData.message || `Ride status updated to ${statusData.status}`);
         setTimeout(() => setStatusNotification(''), 6000);
         if (statusData.status === 'COMPLETED') {
+          if (isDriver) {
+            bookingService.getBookingsByRide(rideId).then((bookingsData) => {
+              const passengerList = Array.isArray(bookingsData)
+                ? bookingsData.map((b) => b.passenger).filter(Boolean)
+                : [];
+              setPassengers(passengerList);
+            }).catch(() => {});
+          }
           setShowRateModal(true);
         }
       }
@@ -317,6 +327,15 @@ export const LiveRidePage = () => {
       await rideService.updateRideStatus(rideId, newStatus, msg);
       setRideStatus(newStatus);
       if (newStatus === 'COMPLETED') {
+        if (isDriver) {
+          try {
+            const bookingsData = await bookingService.getBookingsByRide(rideId);
+            const passengerList = Array.isArray(bookingsData)
+              ? bookingsData.map((b) => b.passenger).filter(Boolean)
+              : [];
+            setPassengers(passengerList);
+          } catch {}
+        }
         setShowRateModal(true);
       }
     } catch (err) {
@@ -588,7 +607,8 @@ export const LiveRidePage = () => {
         isOpen={showRateModal}
         onClose={() => setShowRateModal(false)}
         rideId={rideId}
-        targetUser={isDriver ? { name: 'Ride Passenger', role: 'passenger' } : ride?.driver}
+        passengers={isDriver ? passengers : []}
+        targetUser={isDriver ? passengers[0] : ride?.driver}
         onSuccess={() => {}}
       />
     </div>
