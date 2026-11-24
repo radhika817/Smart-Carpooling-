@@ -37,19 +37,7 @@ export const Navbar = () => {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center space-x-1">
-            <Link
-              to="/search"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive('/search')
-                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
-              }`}
-            >
-              <Compass className="w-4 h-4 text-brand-600" />
-              <span>Find ride</span>
-            </Link>
-
-            {user?.role === 'driver' && (
+            {user?.role === 'driver' ? (
               <>
                 <Link
                   to="/create-ride"
@@ -75,6 +63,18 @@ export const Navbar = () => {
                   <span>Vehicles</span>
                 </Link>
               </>
+            ) : (
+              <Link
+                to="/search"
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive('/search')
+                    ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                }`}
+              >
+                <Compass className="w-4 h-4 text-brand-600" />
+                <span>Find ride</span>
+              </Link>
             )}
 
             <Link
@@ -192,16 +192,7 @@ export const Navbar = () => {
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 shadow-elevated">
-          <Link
-            to="/search"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
-          >
-            <Compass className="w-4 h-4 text-brand-600" />
-            <span>Find ride</span>
-          </Link>
-
-          {user?.role === 'driver' && (
+          {user?.role === 'driver' ? (
             <>
               <Link
                 to="/create-ride"
@@ -220,6 +211,15 @@ export const Navbar = () => {
                 <span>Vehicles</span>
               </Link>
             </>
+          ) : (
+            <Link
+              to="/search"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+            >
+              <Compass className="w-4 h-4 text-brand-600" />
+              <span>Find ride</span>
+            </Link>
           )}
 
           <Link
