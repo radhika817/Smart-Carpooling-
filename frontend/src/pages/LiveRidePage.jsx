@@ -6,7 +6,7 @@ import { bookingService } from '../services/bookingService';
 import { useAuth } from '../context/AuthContext';
 import { connectRideSocket } from '../services/socket';
 import { InRideChat } from '../components/chat/InRideChat';
-import { fixLeafletMarkerIcons } from '../utils/geo';
+import { fixLeafletMarkerIcons, calculateDistanceKm } from '../utils/geo';
 import {
   Navigation,
   Clock,
@@ -127,6 +127,26 @@ export const LiveRidePage = () => {
         }
         setRouteWaypoints(waypoints);
         setDriverLocation([startLngLat[1], startLngLat[0]]);
+
+        // Calculate initial distance & ETA immediately from route geometry or coordinates
+        let initialDistKm = 0;
+        let initialEtaMin = 0;
+
+        if (data.route?.distance && !isNaN(Number(data.route.distance))) {
+          initialDistKm = Math.round((Number(data.route.distance) / 1000) * 10) / 10;
+        } else {
+          initialDistKm = calculateDistanceKm(startLngLat, destLngLat);
+        }
+
+        if (data.route?.duration && !isNaN(Number(data.route.duration))) {
+          initialEtaMin = Math.round(Number(data.route.duration) / 60);
+        } else {
+          initialEtaMin = Math.max(5, Math.round(initialDistKm * 2));
+        }
+
+        setDistanceRemaining(initialDistKm);
+        setEtaMinutes(initialEtaMin);
+        setSpeed(35);
       } catch (err) {
         if (isMounted) setError(err.message || 'Failed to load ride tracking session');
       } finally {
@@ -296,6 +316,14 @@ export const LiveRidePage = () => {
 
     const latLng = [pt[1], pt[0]];
     setDriverLocation(latLng);
+
+    const destLngLat = ride?.destination?.coordinates || [73.7389, 18.5913];
+    const remKm = calculateDistanceKm(pt, destLngLat);
+    const remEta = Math.max(1, Math.round(remKm * 2));
+    setDistanceRemaining(remKm);
+    setEtaMinutes(remEta);
+    setSpeed(40);
+
     emitLocation(pt, calculatedHeading, 40);
   };
 
@@ -312,6 +340,14 @@ export const LiveRidePage = () => {
           const pt = routeWaypoints[next];
           const latLng = [pt[1], pt[0]];
           setDriverLocation(latLng);
+
+          const destLngLat = ride?.destination?.coordinates || [73.7389, 18.5913];
+          const remKm = calculateDistanceKm(pt, destLngLat);
+          const remEta = Math.max(1, Math.round(remKm * 2));
+          setDistanceRemaining(remKm);
+          setEtaMinutes(remEta);
+          setSpeed(42);
+
           emitLocation(pt, 90, 42);
           return next;
         });
