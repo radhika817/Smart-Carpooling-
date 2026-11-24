@@ -22,6 +22,7 @@ import {
   ArrowRight,
   Radio,
   Users,
+  Repeat,
 } from 'lucide-react';
 import { SafetySettingsCard } from '../components/safety/SafetySettingsCard';
 import { RateRideModal } from '../components/safety/RateRideModal';
@@ -116,6 +117,23 @@ export const DashboardPage = () => {
       loadDashboardData();
     } catch (err) {
       setActionError(err.message || 'Failed to complete ride');
+    }
+  };
+
+  const handleCancelRide = async (rideId, isSeries = false) => {
+    const confirmMsg = isSeries
+      ? 'Do you want to cancel this entire recurring ride series? All scheduled dates will be cancelled.'
+      : 'Are you sure you want to cancel this scheduled ride offer?';
+    if (!window.confirm(confirmMsg)) return;
+
+    setActionError('');
+    setActionSuccess('');
+    try {
+      await rideService.cancelRide(rideId, { cancelSeries: isSeries });
+      setActionSuccess(isSeries ? 'Recurring ride series cancelled.' : 'Ride offer cancelled.');
+      loadDashboardData();
+    } catch (err) {
+      setActionError(err.message || 'Failed to cancel ride');
     }
   };
 
@@ -299,7 +317,7 @@ export const DashboardPage = () => {
                 <div key={ride._id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span
                           className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                             ride.status === 'IN_PROGRESS'
@@ -316,6 +334,18 @@ export const DashboardPage = () => {
                         <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
                           {ride.availableSeats} of {ride.totalSeats} seats open
                         </span>
+                        {ride.date && (
+                          <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-slate-500" />
+                            {ride.date}
+                          </span>
+                        )}
+                        {ride.recurrence?.isRecurring && (
+                          <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200 flex items-center gap-1">
+                            <Repeat className="w-3 h-3 text-purple-600" />
+                            Series
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
                         <Car className="w-3.5 h-3.5 text-slate-400" />
@@ -377,12 +407,21 @@ export const DashboardPage = () => {
                     </Link>
 
                     {ride.status === 'OPEN' && (
-                      <button
-                        onClick={() => handleStartRide(ride._id)}
-                        className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1 transition shadow-xs"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-current" /> Start
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleStartRide(ride._id)}
+                          className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1 transition shadow-xs"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-current" /> Start
+                        </button>
+                        <button
+                          onClick={() => handleCancelRide(ride._id, Boolean(ride.recurrence?.recurringGroupId))}
+                          className="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center justify-center gap-1 transition"
+                          title="Cancel scheduled ride offer"
+                        >
+                          <Ban className="w-3.5 h-3.5" /> Cancel
+                        </button>
+                      </>
                     )}
 
                     {ride.status === 'IN_PROGRESS' && (
