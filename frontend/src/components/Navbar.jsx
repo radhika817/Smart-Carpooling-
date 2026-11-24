@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, Menu, X, ShieldCheck, BarChart3, Users } from 'lucide-react';
+import { Car, Compass, PlusCircle, LayoutDashboard, LogOut, Menu, X, ShieldCheck, Users } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -21,7 +21,7 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
+          <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-500 flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform duration-200">
               <Car className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
@@ -37,7 +37,19 @@ export const Navbar = () => {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center space-x-1">
-            {user?.role === 'driver' ? (
+            {user?.role === 'admin' ? (
+              <Link
+                to="/admin"
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
+                  isActive('/admin')
+                    ? 'bg-purple-50 text-purple-800 border border-purple-200 shadow-xs'
+                    : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4 text-purple-600" />
+                <span>Admin console</span>
+              </Link>
+            ) : user?.role === 'driver' ? (
               <>
                 <Link
                   to="/create-ride"
@@ -62,71 +74,69 @@ export const Navbar = () => {
                   <Car className="w-4 h-4 text-sunrise-600" />
                   <span>Vehicles</span>
                 </Link>
+
+                <Link
+                  to="/groups"
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    isActive('/groups') || location.pathname.startsWith('/groups/')
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                  }`}
+                >
+                  <Users className="w-4 h-4 text-brand-600" />
+                  <span>Groups</span>
+                </Link>
+
+                <Link
+                  to="/dashboard"
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    isActive('/dashboard')
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                  }`}
+                >
+                  <LayoutDashboard className="w-4 h-4 text-slate-600" />
+                  <span>Dashboard</span>
+                </Link>
               </>
             ) : (
-              <Link
-                to="/search"
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  isActive('/search')
-                    ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
-                }`}
-              >
-                <Compass className="w-4 h-4 text-brand-600" />
-                <span>Find ride</span>
-              </Link>
-            )}
+              <>
+                <Link
+                  to="/search"
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    isActive('/search')
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                  }`}
+                >
+                  <Compass className="w-4 h-4 text-brand-600" />
+                  <span>Find ride</span>
+                </Link>
 
-            <Link
-              to="/groups"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive('/groups') || location.pathname.startsWith('/groups/')
-                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
-              }`}
-            >
-              <Users className="w-4 h-4 text-brand-600" />
-              <span>Groups</span>
-            </Link>
+                <Link
+                  to="/groups"
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    isActive('/groups') || location.pathname.startsWith('/groups/')
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                  }`}
+                >
+                  <Users className="w-4 h-4 text-brand-600" />
+                  <span>Groups</span>
+                </Link>
 
-            <Link
-              to="/dashboard"
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive('/dashboard')
-                  ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 text-slate-600" />
-              <span>Dashboard</span>
-            </Link>
-
-            {user?.role === 'admin' && (
-              <Link
-                to="/admin/analytics"
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  isActive('/admin/analytics')
-                    ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4 text-brand-600" />
-                <span>Analytics</span>
-              </Link>
-            )}
-
-            {user?.role === 'admin' && (
-              <Link
-                to="/admin"
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
-                  isActive('/admin')
-                    ? 'bg-purple-50 text-purple-800 border border-purple-200 shadow-xs'
-                    : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50'
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4 text-purple-600" />
-                <span>Admin console</span>
-              </Link>
+                <Link
+                  to="/dashboard"
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    isActive('/dashboard')
+                      ? 'bg-brand-50 text-brand-800 font-semibold border border-brand-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                  }`}
+                >
+                  <LayoutDashboard className="w-4 h-4 text-slate-600" />
+                  <span>Dashboard</span>
+                </Link>
+              </>
             )}
           </nav>
 
@@ -192,7 +202,16 @@ export const Navbar = () => {
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 shadow-elevated">
-          {user?.role === 'driver' ? (
+          {user?.role === 'admin' ? (
+            <Link
+              to="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center space-x-2 py-2 text-purple-700 hover:text-purple-900 font-bold text-sm"
+            >
+              <ShieldCheck className="w-4 h-4 text-purple-600" />
+              <span>Admin console</span>
+            </Link>
+          ) : user?.role === 'driver' ? (
             <>
               <Link
                 to="/create-ride"
@@ -210,56 +229,50 @@ export const Navbar = () => {
                 <Car className="w-4 h-4 text-sunrise-600" />
                 <span>Vehicles</span>
               </Link>
+              <Link
+                to="/groups"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+              >
+                <Users className="w-4 h-4 text-brand-600" />
+                <span>Carpool groups</span>
+              </Link>
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+              >
+                <LayoutDashboard className="w-4 h-4 text-slate-600" />
+                <span>Dashboard</span>
+              </Link>
             </>
           ) : (
-            <Link
-              to="/search"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
-            >
-              <Compass className="w-4 h-4 text-brand-600" />
-              <span>Find ride</span>
-            </Link>
-          )}
-
-          <Link
-            to="/groups"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
-          >
-            <Users className="w-4 h-4 text-brand-600" />
-            <span>Carpool groups</span>
-          </Link>
-
-          <Link
-            to="/dashboard"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
-          >
-            <LayoutDashboard className="w-4 h-4 text-slate-600" />
-            <span>Dashboard</span>
-          </Link>
-
-          {user?.role === 'admin' && (
-            <Link
-              to="/admin/analytics"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
-            >
-              <BarChart3 className="w-4 h-4 text-brand-600" />
-              <span>Platform analytics</span>
-            </Link>
-          )}
-
-          {user?.role === 'admin' && (
-            <Link
-              to="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2 py-2 text-purple-700 hover:text-purple-900 font-bold text-sm"
-            >
-              <ShieldCheck className="w-4 h-4 text-purple-600" />
-              <span>Admin console</span>
-            </Link>
+            <>
+              <Link
+                to="/search"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+              >
+                <Compass className="w-4 h-4 text-brand-600" />
+                <span>Find ride</span>
+              </Link>
+              <Link
+                to="/groups"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+              >
+                <Users className="w-4 h-4 text-brand-600" />
+                <span>Carpool groups</span>
+              </Link>
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 py-2 text-slate-700 hover:text-brand-600 font-medium text-sm"
+              >
+                <LayoutDashboard className="w-4 h-4 text-slate-600" />
+                <span>Dashboard</span>
+              </Link>
+            </>
           )}
 
           {isAuthenticated ? (

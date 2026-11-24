@@ -11,8 +11,8 @@ describe('Admin Analytics Visibility & Route Protection', () => {
     vi.clearAllMocks();
   });
 
-  describe('Navbar Analytics Link Visibility', () => {
-    it('renders Analytics link when authenticated user has admin role', () => {
+  describe('Navbar Role-Based Navigation Link Visibility', () => {
+    it('renders ONLY Admin console link when authenticated user has admin role', () => {
       vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
         user: { _id: 'admin_1', name: 'Admin', role: 'admin' },
         isAuthenticated: true,
@@ -25,11 +25,16 @@ describe('Admin Analytics Visibility & Route Protection', () => {
         </MemoryRouter>
       );
 
-      const analyticsLinks = screen.getAllByRole('link', { name: /Analytics/i });
-      expect(analyticsLinks.length).toBeGreaterThanOrEqual(1);
+      const adminConsoleLinks = screen.getAllByRole('link', { name: /Admin console/i });
+      expect(adminConsoleLinks.length).toBeGreaterThanOrEqual(1);
+
+      expect(screen.queryByRole('link', { name: /^Find ride$/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /^Groups$/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /^Dashboard$/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Analytics/i })).not.toBeInTheDocument();
     });
 
-    it('does NOT render Analytics link when user is a passenger', () => {
+    it('does NOT render Admin console link when user is a passenger', () => {
       vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
         user: { _id: 'pass_1', name: 'Passenger', role: 'passenger' },
         isAuthenticated: true,
@@ -42,11 +47,11 @@ describe('Admin Analytics Visibility & Route Protection', () => {
         </MemoryRouter>
       );
 
-      expect(screen.queryByRole('link', { name: /Analytics/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: /Platform analytics/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Admin console/i })).not.toBeInTheDocument();
+      expect(screen.getAllByRole('link', { name: /Find ride/i }).length).toBeGreaterThanOrEqual(1);
     });
 
-    it('does NOT render Analytics link when user is a driver', () => {
+    it('does NOT render Admin console or Find ride link when user is a driver', () => {
       vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
         user: { _id: 'driver_1', name: 'Driver', role: 'driver' },
         isAuthenticated: true,
@@ -59,10 +64,12 @@ describe('Admin Analytics Visibility & Route Protection', () => {
         </MemoryRouter>
       );
 
-      expect(screen.queryByRole('link', { name: /Analytics/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Admin console/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Find ride/i })).not.toBeInTheDocument();
+      expect(screen.getAllByRole('link', { name: /Post ride/i }).length).toBeGreaterThanOrEqual(1);
     });
 
-    it('does NOT render Analytics link for unauthenticated visitors', () => {
+    it('does NOT render Admin console link for unauthenticated visitors', () => {
       vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
         user: null,
         isAuthenticated: false,
@@ -75,7 +82,7 @@ describe('Admin Analytics Visibility & Route Protection', () => {
         </MemoryRouter>
       );
 
-      expect(screen.queryByRole('link', { name: /Analytics/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Admin console/i })).not.toBeInTheDocument();
     });
   });
 

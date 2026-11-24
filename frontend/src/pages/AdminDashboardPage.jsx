@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { adminService } from '../services/adminService';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -15,6 +16,7 @@ import {
   Activity,
   Layers,
   Shield,
+  BarChart3,
 } from 'lucide-react';
 
 export const AdminDashboardPage = () => {
@@ -234,6 +236,16 @@ export const AdminDashboardPage = () => {
               Platform administration, community scoping, user governance, and safety oversight.
             </p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            to="/admin/analytics"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-brand-50 text-slate-700 hover:text-brand-800 border border-slate-200 hover:border-brand-200 shadow-xs transition"
+          >
+            <BarChart3 className="w-4 h-4 text-brand-600" />
+            <span>Platform analytics</span>
+          </Link>
         </div>
 
         {/* Global Feedback Banner */}
