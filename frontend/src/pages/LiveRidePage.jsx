@@ -23,6 +23,7 @@ import {
   Radio,
   ArrowLeft,
   Star,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { SosAlertModal } from '../components/safety/SosAlertModal';
 import { ShareTrackingModal } from '../components/safety/ShareTrackingModal';
@@ -79,6 +80,7 @@ export const LiveRidePage = () => {
   const [statusNotification, setStatusNotification] = useState('');
   const [showRateModal, setShowRateModal] = useState(false);
   const [passengers, setPassengers] = useState([]);
+  const [viewModeOverride, setViewModeOverride] = useState(null);
 
   // Simulation controls (for Driver)
   const [isSimulating, setIsSimulating] = useState(false);
@@ -184,11 +186,13 @@ export const LiveRidePage = () => {
   }, [rideId]);
 
   // Determine if logged-in user is the driver
-  const isDriver =
+  const actualIsDriver =
     user?._id === ride?.driver?._id ||
     user?.id === ride?.driver?._id ||
     user?._id === ride?.driver ||
     user?.id === ride?.driver;
+
+  const isDriver = viewModeOverride !== null ? viewModeOverride : actualIsDriver;
 
   // Initialize and update Leaflet map
   useEffect(() => {
@@ -412,9 +416,16 @@ export const LiveRidePage = () => {
                   ? 'Completed'
                   : rideStatus.replace('_', ' ')}
           </span>
-          <span className="text-xs text-slate-600 font-semibold px-2.5 py-1 bg-white rounded-lg border border-slate-200 shadow-xs">
-            {isDriver ? 'Driver View' : 'Passenger View'}
-          </span>
+          <button
+            type="button"
+            onClick={() => setViewModeOverride((prev) => (prev === null ? !actualIsDriver : !prev))}
+            title="Click to toggle between Driver View and Passenger View"
+            className="text-xs text-slate-700 hover:text-slate-900 font-semibold px-2.5 py-1 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5 transition active:scale-95 cursor-pointer group"
+          >
+            <ArrowLeftRight className="w-3.5 h-3.5 text-brand-600 group-hover:rotate-180 transition-transform duration-300" />
+            <span>{isDriver ? 'Driver View' : 'Passenger View'}</span>
+            <span className="text-[10px] text-slate-400 font-normal hover:text-slate-600">(switch)</span>
+          </button>
 
           {/* Share Live Tracking Modal Button */}
           <ShareTrackingModal rideId={rideId} />
