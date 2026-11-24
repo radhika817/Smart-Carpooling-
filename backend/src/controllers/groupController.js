@@ -21,6 +21,20 @@ export const createGroup = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Group name is required.' });
     }
 
+    const org = organization ? organization.trim() : (req.user.organization || '');
+
+    // Prevent accidental duplicate creation of same group in same organization
+    const existing = await CarpoolGroup.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
+      organization: org,
+    });
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: 'A group with this name already exists in your organization.',
+      });
+    }
+
     // Generate unique 6-character uppercase invite code (e.g. 'PUN7A2')
     const inviteCode = crypto.randomBytes(3).toString('hex').toUpperCase();
 
@@ -89,9 +103,12 @@ export const listGroups = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .lean();
 
+    // Filter out any orphaned groups whose creator has been deleted
+    const validGroups = groups.filter((g) => g.creator !== null);
+
     return res.status(200).json({
       success: true,
-      data: groups,
+      data: validGroups,
     });
   } catch (error) {
     next(error);

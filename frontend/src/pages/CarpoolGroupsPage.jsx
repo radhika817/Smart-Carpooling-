@@ -56,8 +56,15 @@ export const CarpoolGroupsPage = () => {
       if (search.trim()) params.search = search.trim();
       if (myGroupsOnly) params.myGroups = 'true';
       const res = await groupService.getGroups(params);
-      const groupsList = Array.isArray(res) ? res : (res?.data || []);
-      setGroups(groupsList);
+      const rawList = Array.isArray(res) ? res : (res?.data || []);
+      // Deduplicate by _id
+      const uniqueMap = new Map();
+      rawList.forEach((g) => {
+        if (g && g._id && !uniqueMap.has(g._id)) {
+          uniqueMap.set(g._id, g);
+        }
+      });
+      setGroups(Array.from(uniqueMap.values()));
     } catch (err) {
       console.error('Failed to load groups:', err);
     } finally {
