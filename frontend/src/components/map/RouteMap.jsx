@@ -137,7 +137,7 @@ export const RouteMap = ({
   };
 
   return (
-    <div className={`relative w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm ${className}`}>
+    <div className={`relative z-0 isolate w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm ${className}`}>
       {/* Map Canvas */}
       <div ref={mapContainerRef} style={{ height, width: '100%' }} className="z-10" />
 

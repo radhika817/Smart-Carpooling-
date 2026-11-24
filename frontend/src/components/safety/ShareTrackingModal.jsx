@@ -56,7 +56,7 @@ export const ShareTrackingModal = ({ rideId }) => {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
           <div className="relative w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-elevated p-6 space-y-5 text-slate-900">
             {/* Header */}
             <div className="flex items-start justify-between">

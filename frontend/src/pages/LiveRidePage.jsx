@@ -394,24 +394,23 @@ export const LiveRidePage = () => {
         {/* Status Pill Badge & Safety Actions */}
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-xs ${
-              rideStatus === 'IN_PROGRESS'
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 shadow-xs ${rideStatus === 'IN_PROGRESS'
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 animate-pulse'
                 : rideStatus === 'DRIVER_ARRIVING'
-                ? 'bg-sunrise-50 text-sunrise-800 border-sunrise-300 animate-pulse'
-                : rideStatus === 'COMPLETED'
-                ? 'bg-blue-50 text-blue-800 border-blue-300'
-                : 'bg-brand-50 text-brand-700 border-brand-300'
-            }`}
+                  ? 'bg-sunrise-50 text-sunrise-800 border-sunrise-300 animate-pulse'
+                  : rideStatus === 'COMPLETED'
+                    ? 'bg-blue-50 text-blue-800 border-blue-300'
+                    : 'bg-brand-50 text-brand-700 border-brand-300'
+              }`}
           >
             <Radio className="w-3.5 h-3.5" />
             {rideStatus === 'IN_PROGRESS'
               ? 'In progress'
               : rideStatus === 'DRIVER_ARRIVING'
-              ? 'Driver arriving'
-              : rideStatus === 'COMPLETED'
-              ? 'Completed'
-              : rideStatus.replace('_', ' ')}
+                ? 'Driver arriving'
+                : rideStatus === 'COMPLETED'
+                  ? 'Completed'
+                  : rideStatus.replace('_', ' ')}
           </span>
           <span className="text-xs text-slate-600 font-semibold px-2.5 py-1 bg-white rounded-lg border border-slate-200 shadow-xs">
             {isDriver ? 'Driver View' : 'Passenger View'}
@@ -493,11 +492,11 @@ export const LiveRidePage = () => {
           </div>
 
           {/* Interactive Leaflet Live Map */}
-          <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-[480px] shadow-sm bg-slate-100">
+          <div className="relative z-0 isolate rounded-2xl overflow-hidden border border-slate-200 h-[480px] shadow-sm bg-slate-100">
             <div ref={mapContainerRef} className="w-full h-full" />
 
             {/* Map Watermark & Attribution */}
-            <div className="absolute bottom-3 left-3 z-[1000] px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur border border-slate-200 text-xs text-slate-700 font-medium flex items-center gap-2 shadow-sm">
+            <div className="absolute bottom-3 left-3 z-10 px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur border border-slate-200 text-xs text-slate-700 font-medium flex items-center gap-2 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-brand-600 animate-pulse" />
               Socket.IO GPS Telemetry Active
             </div>
@@ -519,11 +518,10 @@ export const LiveRidePage = () => {
                 <button
                   type="button"
                   onClick={toggleSimulation}
-                  className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition ${
-                    isSimulating
+                  className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition ${isSimulating
                       ? 'bg-sunrise-50 text-sunrise-800 border border-sunrise-300'
                       : 'bg-brand-600 text-white font-semibold hover:bg-brand-700 shadow-sm'
-                  }`}
+                    }`}
                 >
                   {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                   {isSimulating ? 'Pause simulation' : 'Start simulation'}

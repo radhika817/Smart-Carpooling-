@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure Leaflet controls and panes do not break out of their stacking contexts above modals */
+.leaflet-container {
+  isolation: isolate;
+  z-index: 0;
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;

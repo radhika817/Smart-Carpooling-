@@ -203,10 +203,10 @@ export const PublicTrackingPage = () => {
                   {telemetry.status === 'IN_PROGRESS'
                     ? 'In progress'
                     : telemetry.status === 'DRIVER_ARRIVING'
-                    ? 'Driver arriving'
-                    : telemetry.status === 'COMPLETED'
-                    ? 'Completed'
-                    : telemetry.status?.replace('_', ' ') || 'Active'}
+                      ? 'Driver arriving'
+                      : telemetry.status === 'COMPLETED'
+                        ? 'Completed'
+                        : telemetry.status?.replace('_', ' ') || 'Active'}
                 </span>
               </div>
               <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm space-y-1">
@@ -225,9 +225,9 @@ export const PublicTrackingPage = () => {
             </div>
 
             {/* Live Leaflet Map */}
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-[450px] shadow-sm bg-slate-100">
+            <div className="relative z-0 isolate rounded-2xl overflow-hidden border border-slate-200 h-[450px] shadow-sm bg-slate-100">
               <div ref={mapContainerRef} className="w-full h-full" />
-              <div className="absolute bottom-3 left-3 z-[1000] px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur border border-slate-200 text-xs text-slate-700 font-semibold flex items-center gap-2 shadow-sm">
+              <div className="absolute bottom-3 left-3 z-10 px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur border border-slate-200 text-xs text-slate-700 font-semibold flex items-center gap-2 shadow-sm">
                 <Radio className="w-3.5 h-3.5 text-brand-600 animate-pulse" />
                 Live Telemetry Active
               </div>

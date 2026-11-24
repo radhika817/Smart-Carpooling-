@@ -122,7 +122,7 @@ export const LocationPickerModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full overflow-hidden shadow-elevated flex flex-col max-h-[90vh]">
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
